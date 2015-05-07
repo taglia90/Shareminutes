@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="it">
+<head>
+<title>JsDatePick: un calendario con jQuery - Esempio JavaScript
+	scaricato da HTML.it</title>
+<meta http-equiv="Content-type" content="text/html; charset=iso-8859-1" />
+<meta http-equiv="Content-Language" content="it" />
+<meta name="Robots" content="All" />
+<meta name="Description"
+	content="HTML.it - il sito italiano sul Web publishing" />
+<meta name="Keywords" content="javascript" />
+<meta name="Owner" content="HTML.it srl" />
+<meta name="Author" content="HTML.it srl" />
+<meta name="Copyright" content="HTML.it srl" />
+<link rel="stylesheet" type="text/css" media="all"
+	href="jsDatePick_ltr.min.css" />
+<!-- 
+	OR if you want to use the calendar in a right-to-left website
+	just use the other CSS file instead and don't forget to switch g_jsDatePickDirectionality variable to "rtl"!
+	
+	<link rel="stylesheet" type="text/css" media="all" href="jsDatePick_ltr.css" />
+-->
+<script type="text/javascript" src="jsDatePick.min.1.3.js"></script>
+<!-- 
+	After you copied those 2 lines of code , make sure you take also the files into the same folder :-)
+    Next step will be to set the appropriate statement to "start-up" the calendar on the needed HTML element.
+    
+    The first example of Javascript snippet is for the most basic use , as a popup calendar
+    for a text field input.
+-->
+<script type="text/javascript">
+	window.onload = function(){
+		new JsDatePick({
+			useMode:2,
+			target:"inputField",
+			dateFormat:"%d-%M-%Y"
+			/*selectedDate:{				This is an example of what the full configuration offers.
+				day:5,						For full documentation about these settings please see the full version of the code.
+				month:9,
+				year:2006
+			},
+			yearsRange:[1978,2020],
+			limitToToday:false,
+			cellColorScheme:"beige",
+			dateFormat:"%m-%d-%Y",
+			imgPath:"img/",
+			weekStartDay:1*/
+		});
+	};
+</script>
+</head>
+<body>
+	<h1>JsDatePick: un calendario con jQuery</h1>
+
+
+	Clicca sulla casella di testo.
+
+	<input type="text" size="12" id="inputField" />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<div align="center">
+		<a href="http://www.html.it"><img src="logo_htmlit.gif"
+			alt="JavaScript scaricato da HTML.it" border="0" width="50"
+			height="50" /></a><br />
+	</div>
+</body>
+</html>
