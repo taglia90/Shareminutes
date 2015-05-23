@@ -104,6 +104,12 @@
  <welcome-file-list>
   <welcome-file>/index.jsp</welcome-file>
  </welcome-file-list>
+ <jsp-config>
+  <taglib>
+   <taglib-uri>/WEB-INF/tags/</taglib-uri>
+   <taglib-location>/WEB-INF/tags/</taglib-location>
+  </taglib>
+ </jsp-config>
  <security-constraint>
   <display-name>Constraint1</display-name>
   <web-resource-collection>

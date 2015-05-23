@@ -1,6 +1,6 @@
 <%@ page import="util.LoginToken"%>
 <%@ page import="util.LoginToken.TipoAccesso"%>
-
+<%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -234,8 +234,9 @@
 							</div>
 
 
-							 <div class="clearfix">
-								<label>Selezionare i giorni della settimana e le fasce orarie in cui si è disponibili per l'attività.</label>
+							<div class="clearfix">
+								<label>Selezionare i giorni della settimana e le fasce
+									orarie in cui si è disponibili per l'attività.</label>
 								<table>
 									<tr>
 										<th>&nbsp;&nbsp;&nbsp;&nbsp;</th>
@@ -254,7 +255,7 @@
 										<th>Domenica</th>
 									</tr>
 									<%
-										 tabella = "";
+										tabella = "";
 										String[] valore = { "LU", "MA", "ME", "GI", "VE", "SA", "DO" };
 										for (int i = 0; i < 24; i++) {
 											tabella += "<tr>\n<th>" + i + "</th>\n";
@@ -270,7 +271,7 @@
 									<%=tabella%>
 
 								</table>
-							</div> 
+							</div>
 							<br /> <br />
 
 							<div class="clearfix">
