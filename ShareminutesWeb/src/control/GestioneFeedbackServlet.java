@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import remote.GestioneFeedbackRemote;
+import remote.GestionePrenotazioniRemote;
 import remote.GestioneRichiesteRemote;
 import remote.GestioneUtentiRemote;
 import util.LoginToken;
@@ -22,6 +23,7 @@ import com.oreilly.servlet.MultipartRequest;
 import entity.Feedback;
 import entity.Utente;
 import exception.FeedbackException;
+import exception.PrenotazioneException;
 import exception.RichiestaException;
 
 public class GestioneFeedbackServlet extends Servlet {
@@ -102,6 +104,8 @@ public class GestioneFeedbackServlet extends Servlet {
 		HttpSession session = request.getSession();
 
 		session.setAttribute("idRichiesta", request.getParameter("idRichiesta"));
+		session.setAttribute("idPrenotazione",
+				request.getParameter("idPrenotazione"));
 
 		session.setAttribute("usernameDestinatario",
 				request.getParameter("usernameDestinatario"));
@@ -119,16 +123,18 @@ public class GestioneFeedbackServlet extends Servlet {
 			Object ref1 = jndiContext.lookup("GestioneFeedback/remote");
 			GestioneFeedbackRemote gestioneFeedbackRemote = (GestioneFeedbackRemote) PortableRemoteObject
 					.narrow(ref1, GestioneFeedbackRemote.class);
-			Context jndiContext2 = new javax.naming.InitialContext();
-			Object ref2 = jndiContext2.lookup("GestioneRichieste/remote");
+			/*Object ref2 = jndiContext.lookup("GestioneRichieste/remote");
 			GestioneRichiesteRemote gestioneRichiesteRemote = (GestioneRichiesteRemote) PortableRemoteObject
 					.narrow(ref2, GestioneRichiesteRemote.class);
+			*/
+			Object ref3 = jndiContext.lookup("GestionePrenotazioni/remote");
+			GestionePrenotazioniRemote gestionePrenotazioniRemote = (GestionePrenotazioniRemote) PortableRemoteObject
+					.narrow(ref3, GestionePrenotazioniRemote.class);
 
 			MultipartRequest multi = new MultipartRequest(request, "./");
 
 			int idUtenteDestinatario = Integer.parseInt(request
 					.getParameter("usernameDestinatario"));
-			
 
 			String votoEsteso = multi.getParameter("votoEsteso");
 			String[] votoSint = multi.getParameterValues("votoSintetico");
@@ -141,16 +147,16 @@ public class GestioneFeedbackServlet extends Servlet {
 
 			LoginToken tok = (LoginToken) session.getAttribute("LoginToken");
 
-			if (request.getParameter("idRichiesta") == null) {
+			if (multi.getParameter("idPrenotazione") == null) {
 				throw new FeedbackException(
-						"L'id della richiesta non può essere null");
+						"L'id della della prenotazione non può essere null");
 			}
-			int idRichiesta = Integer.parseInt(request
-					.getParameter("idRichiesta"));
+			int idPrenotazione = Integer.parseInt(request
+					.getParameter("idPrenotazione"));
 
 			gestioneFeedbackRemote.creaFeedback(votoSintetico, votoEsteso,
 					idUtenteDestinatario, tok.getIdUtente());
-			gestioneRichiesteRemote.valutaRichiesta(idRichiesta);
+			gestionePrenotazioniRemote.valutaPrenotazione(idPrenotazione);
 
 			session.setAttribute("usernameUtente", tok.getIdUtente());
 
@@ -163,7 +169,7 @@ public class GestioneFeedbackServlet extends Servlet {
 			this.redirectToPaginaNuovoFeedback(request, response);
 		} catch (IOException e) {
 			e.printStackTrace();
-		} catch (RichiestaException e) {
+		} catch (PrenotazioneException e) {
 			session.setAttribute("Errore", e.toString());
 		}
 

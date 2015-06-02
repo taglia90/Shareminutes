@@ -1,6 +1,7 @@
 package control;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import javax.naming.Context;
@@ -11,8 +12,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import remote.GestionePrenotazioniRemote;
 import remote.GestioneUtentiRemote;
 import util.LoginToken;
+import entity.Follower;
 import entity.Utente;
 import exception.AmiciziaException;
 
@@ -37,6 +40,18 @@ public class GestioneAmicizieServlet extends Servlet {
 			this.eliminaAmicizia(request, response);
 		if (to.equals("redirectToPaginaAmicizie"))
 			this.redirectToPaginaAmicizie(request, response);
+		if (to.equals("redirectToPaginaFollower"))
+			this.redirectToPaginaFollower(request, response);
+		if (to.equals("redirectToPaginaFollowerPreferiti"))
+			this.redirectToPaginaFollowerPreferiti(request, response);
+		if (to.equals("aggiungiFollower"))
+			this.aggiungiFollower(request, response);
+		if (to.equals("aggiungiFollowerAPreferiti"))
+			this.aggiungiFollowerAPreferiti(request, response);
+		if (to.equals("rimuoviFollowerDaPreferiti"))
+			this.rimuoviFollowerDaPreferiti(request, response);
+		if (to.equals("eliminaFollower"))
+			this.eliminaFollower(request, response);
 
 	}
 
@@ -169,4 +184,175 @@ public class GestioneAmicizieServlet extends Servlet {
 		}
 	}
 
+	private void redirectToPaginaFollower(HttpServletRequest request,
+			HttpServletResponse response) {
+
+		HttpSession session = request.getSession();
+		try {
+			Context jndiContext = new javax.naming.InitialContext();
+			Object ref1 = jndiContext.lookup("GestioneUtenti/remote");
+			GestioneUtentiRemote gestioneUtenteRemote = (GestioneUtentiRemote) PortableRemoteObject
+					.narrow(ref1, GestioneUtentiRemote.class);
+
+			LoginToken tok = (LoginToken) session.getAttribute("LoginToken");
+			int idUtente = tok.getIdUtente();
+
+			List<Follower> listaFollower = gestioneUtenteRemote
+					.getListaFollower(idUtente);
+
+			session.setAttribute("soloPreferiti", false);
+			session.setAttribute("listaFollower", listaFollower);
+			redirect("utente/listaFollower.jsp", request, response);
+
+		} catch (NamingException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	private void redirectToPaginaFollowerPreferiti(HttpServletRequest request,
+			HttpServletResponse response) {
+
+		HttpSession session = request.getSession();
+		try {
+			Context jndiContext = new javax.naming.InitialContext();
+			Object ref1 = jndiContext.lookup("GestioneUtenti/remote");
+			GestioneUtentiRemote gestioneUtenteRemote = (GestioneUtentiRemote) PortableRemoteObject
+					.narrow(ref1, GestioneUtentiRemote.class);
+
+			LoginToken tok = (LoginToken) session.getAttribute("LoginToken");
+			int idUtente = tok.getIdUtente();
+
+			List<Follower> listaFollower = gestioneUtenteRemote
+					.getListaFollowerPreferiti(idUtente);
+
+			session.setAttribute("soloPreferiti", true);
+			session.setAttribute("listaFollower", listaFollower);
+			redirect("utente/listaFollower.jsp", request, response);
+
+		} catch (NamingException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	private void aggiungiFollower(HttpServletRequest request,
+			HttpServletResponse response) {
+		HttpSession session = request.getSession();
+		try {
+
+			Context jndiContext = new javax.naming.InitialContext();
+			Object ref1 = jndiContext.lookup("GestioneUtenti/remote");
+			GestioneUtentiRemote gestioneUtentiRemote = (GestioneUtentiRemote) PortableRemoteObject
+					.narrow(ref1, GestioneUtentiRemote.class);
+
+			int idUtenteFollower = Integer.parseInt(request
+					.getParameter("idUtenteFoll"));
+
+			LoginToken tok = (LoginToken) session.getAttribute("LoginToken");
+
+			int idUtente = tok.getIdUtente();
+
+			gestioneUtentiRemote.aggiungiFollower(idUtente, idUtenteFollower);
+
+			session.setAttribute("Successo", "Follower aggiunto correttamente.");
+
+			redirect("GestioneAmicizieServlet?to=redirectToPaginaFollower",
+					request, response);
+
+		} catch (NamingException e) {
+			e.printStackTrace();
+		} catch (AmiciziaException e) {
+			session.setAttribute("Errore", e.toString());
+			this.redirectToPaginaAmicizie(request, response);
+		}
+	}
+
+	private void aggiungiFollowerAPreferiti(HttpServletRequest request,
+			HttpServletResponse response) {
+		HttpSession session = request.getSession();
+		try {
+
+			Context jndiContext = new javax.naming.InitialContext();
+			Object ref1 = jndiContext.lookup("GestioneUtenti/remote");
+			GestioneUtentiRemote gestioneUtentiRemote = (GestioneUtentiRemote) PortableRemoteObject
+					.narrow(ref1, GestioneUtentiRemote.class);
+
+			request.setCharacterEncoding("UTF-8");
+
+			int idFollower = Integer.parseInt(request
+					.getParameter("idFollower"));
+
+			gestioneUtentiRemote.setPreferito(idFollower);
+			session.setAttribute("Successo", "Aggiunta avvenuta con successo!");
+
+			redirect("GestioneAmicizieServlet?to=redirectToPaginaFollower",
+					request, response);
+			return;
+
+		} catch (NamingException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
+
+	
+	private void rimuoviFollowerDaPreferiti(HttpServletRequest request,
+			HttpServletResponse response) {
+		HttpSession session = request.getSession();
+		try {
+
+			Context jndiContext = new javax.naming.InitialContext();
+			Object ref1 = jndiContext.lookup("GestioneUtenti/remote");
+			GestioneUtentiRemote gestioneUtentiRemote = (GestioneUtentiRemote) PortableRemoteObject
+					.narrow(ref1, GestioneUtentiRemote.class);
+
+			request.setCharacterEncoding("UTF-8");
+
+			int idFollower = Integer.parseInt(request
+					.getParameter("idFollower"));
+
+			gestioneUtentiRemote.rimuoviPreferito(idFollower);
+			session.setAttribute("Successo", "Rimozione dai preferiti avvenuta con successo!");
+
+			redirect("GestioneAmicizieServlet?to=redirectToPaginaFollower",
+					request, response);
+			return;
+
+		} catch (NamingException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void eliminaFollower(HttpServletRequest request,
+			HttpServletResponse response) {
+		HttpSession session = request.getSession();
+		try {
+
+			Context jndiContext = new javax.naming.InitialContext();
+			Object ref1 = jndiContext.lookup("GestioneUtenti/remote");
+			GestioneUtentiRemote gestioneUtentiRemote = (GestioneUtentiRemote) PortableRemoteObject
+					.narrow(ref1, GestioneUtentiRemote.class);
+
+			request.setCharacterEncoding("UTF-8");
+
+			int idFollower = Integer.parseInt(request
+					.getParameter("idFollower"));
+
+			gestioneUtentiRemote.eliminaFollower(idFollower);
+			session.setAttribute("Successo", "Follower eliminato con successo!");
+
+			redirect("GestioneAmicizieServlet?to=redirectToPaginaFollower",
+					request, response);
+			return;
+
+		} catch (NamingException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
 }

@@ -6,7 +6,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="en">
 <head>
-<title>SWIMv2 - Crea Attività</title>
+<title>Crea Attività</title>
 <meta name="description" content="Admin - Crea Abilità" />
 <meta charset="utf-8" />
 <link rel="stylesheet" href="css/reset.css" type="text/css" media="all" />
@@ -189,14 +189,14 @@
 							</div>
 							<br /> <br />
 
-
+<!-- 
 							<div class="clearfix">
 								<label>Selezionare i giorni della settimana e le fasce
 									orarie in cui si è disponibili per l'attività.</label>
 
 								<div class="input">
-
-									<%
+ -->
+									<%--
 										String tabella = "";
 										String[] giorno = { "Lunedì", "Martedì", "Mercoledì", "Giovedì",
 												"Venerdì", "Sabato", "Domenica" };
@@ -223,16 +223,16 @@
 											tabella += "</select><br /><br />\n";
 										}
 									%>
-									<%=tabella%>
+									<%=tabella--%>
 
 									<!-- <label>Lunedì</label>
 									<select name="disponibilitaLunedì">
 										<option value="Lunedì0">0</option>
 										<option value="Lunedì1">1</option>
-									</select> -->
+									</select> 
 								</div>
 							</div>
-
+ -->
 
 							<div class="clearfix">
 								<label>Selezionare i giorni della settimana e le fasce
@@ -255,7 +255,7 @@
 										<th>Domenica</th>
 									</tr>
 									<%
-										tabella = "";
+										String tabella = "";
 										String[] valore = { "LU", "MA", "ME", "GI", "VE", "SA", "DO" };
 										for (int i = 0; i < 24; i++) {
 											tabella += "<tr>\n<th>" + i + "</th>\n";

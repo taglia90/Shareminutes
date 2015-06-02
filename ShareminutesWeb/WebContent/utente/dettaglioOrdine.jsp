@@ -1,20 +1,23 @@
+<%@page import="entity.Prenotazione"%>
 <%@ page import="util.LoginToken"%>
 <%@ page import="util.LoginToken.TipoAccesso"%>
+<%@ page import="entity.Richiesta"%>
+<%@ page import="entity.Messaggio"%>
+<%@ page import="entity.Abilita"%>
 <%@ page import="entity.Utente"%>
+<%@ page import="java.util.List"%>
 
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 <html lang="en">
 <head>
-<title>SWIMv2</title>
-<meta name="description" content="SWIMv2" />
+<title>Sharminutes - Dettaglio ordine</title>
+<meta name="description" content="Dettaglio ordine" />
 <meta charset="utf-8" />
 <link rel="stylesheet" href="css/reset.css" type="text/css" media="all" />
 <link rel="stylesheet" href="css/layout.css" type="text/css" media="all" />
 <link rel="stylesheet" href="css/style.css" type="text/css" media="all" />
-<script type="text/javascript" src="js/maxheight.js"></script>
 <script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="js/script.js"></script>
 <!--[if lt IE 7]>
@@ -28,7 +31,7 @@
 	<script type="text/javascript" src="js/html5.js"></script>
 <![endif]-->
 </head>
-<body id="page1" onLoad="new ElementMaxHeight();">
+<body id="page3">
 	<div class="tail-bottom">
 		<div id="main">
 			<!-- header -->
@@ -58,7 +61,7 @@
 					%>
 					<li><a
 						href="GestioneRicercheServlet?to=redirectToPaginaRicerca">Search</a></li>
-					<li class="current"><a href="#">Profile</a>
+					<li><a href="#">Profile</a>
 						<ul>
 							<li><a
 								href="GestionePagineServlet?to=redirectToGestioneOrdini">Gestione
@@ -90,16 +93,12 @@
 				<!-- <a href="index.jsp">SWIMv2</a> -->
 			</h1>
 			</header>
-			<%
-				Utente utente = (Utente) session.getAttribute("utente");
-			%>
-			<%
-				if (utente.getIdUtente() == tok.getIdUtente()) {
-			%>
+
 			<div class="nav-box2">
 				<nav>
 				<ul>
-					<li class="current"><a href="#">Profilo</a></li>
+					<li><a
+						href="GestioneUtentiServlet?to=redirectToPaginaProfilo&idUtente=<%=tok.getIdUtente()%>">Profilo</a></li>
 					<li><a
 						href="GestioneAbilitaServlet?to=redirectToPaginaListaAbilitaUser">Attività</a></li>
 					<li><a
@@ -109,9 +108,6 @@
 				</ul>
 				</nav>
 			</div>
-			<%
-				}
-			%>
 
 			<div class="wrapper indent">
 				<!-- content -->
@@ -139,84 +135,120 @@
 					<%
 						session.removeAttribute("Successo");
 						}
+
+						Prenotazione prenotazione = (Prenotazione) session
+								.getAttribute("prenotazione");
+						if (prenotazione != null) {
 					%>
-					<br />
-					<h2>Profilo Utente</h2>
+					<h2>Dettaglio ordine</h2>
 					<br />
 					<%
-						if (utente.getIdUtente() == tok.getIdUtente()) {
+						//AS A BUYER
+							if (prenotazione.getUtenteBuyer().getIdUtente() == tok
+									.getIdUtente()) {
+								Utente u = prenotazione.getUtenteSeller();
+								Abilita a = prenotazione.getAbilita();
 					%>
 
-					<div class="clearfix">
-						<a
-							href="GestioneUtentiServlet?to=redirectToPaginaModificaProfilo&idUtente=<%=tok.getIdUtente()%>"
-							class="btn">Modifica Profilo</a> <br /> <br />
-					</div>
+
+					<table class="zebra-striped">
+						<tbody>
+							<tr>
+								<td>Utente seller:&nbsp; <a
+									href="GestioneUtentiServlet?to=redirectToPaginaProfilo&idUtente=<%=u.getIdUtente()%>"><%=u.getNome()%>
+										<%=u.getCognome()%></a> <br /></td>
+								<td><img
+									src="GestioneUtentiServlet?to=getFotoProfilo&idUtente=<%=u.getIdUtente()%>"
+									height="200" alt="Foto Profilo" /></td>
+								<td><label>Attività:</label> <a
+									href="GestioneAbilitaServlet?to=redirectToPaginaProfiloAbilita&idAbilita=<%=a.getIdAbilita()%>"><%=a.getNomeAbilita()%>
+								</a></td>
+								<td>Rating seller: <a
+									href="GestioneFeedbackServlet?to=redirectToPaginaListaFeedback&usernameUtente=<%=u.getIdUtente()%>">Vedi
+										feedback utente</a><br />
+								</td>
+								<td><label>Stato:</label> <%
+ 	if (prenotazione.isPagata()) {
+ %> <label>Pagamento confermato</label><a
+									href="GestioneFeedbackServlet?to=redirectToPaginaNuovoFeedback&usernameDestinatario=<%=u.getIdUtente()%>&idPrenotazione=<%=prenotazione.getIdPrenotazione()%>">Rilascia
+										Feedback</a> <%
+										
+ 	}else if (prenotazione.isConfermataBuyer()
+								 					&& prenotazione.isAccettataSeller()) {
+								 %><label>PULSANTE PAGAMENTO</label>
+		<%							
+ 	} else if (!prenotazione.isConfermataBuyer()
+ 					&& prenotazione.isAccettataSeller()) {
+ %> <a
+									href="GestionePrenotazioniServlet?to=SetConfermataBuyer&idPrenotazione=<%=prenotazione.getIdPrenotazione()%>">
+										CONCLUDI PRENOTAZIONE</a><br /> <a
+									href="GestionePrenotazioniServlet?to=SetRifiutata&idPrenotazione=<%=prenotazione.getIdPrenotazione()%>">
+										ANNULLA PRENOTAZIONE</a> <%
+ 	} else {
+ %><label>In attesa di una risposta del seller.</label> <%
+ 	}
+ %></td>
+							</tr>
+						</tbody>
+					</table>
+
+					<br /> <br /> <br /> <br />
+
+					<%
+						//AS A SELLER
+							} else {
+								Utente u = prenotazione.getUtenteBuyer();
+								Abilita a = prenotazione.getAbilita();
+					%>
+					<table class="zebra-striped">
+						<tbody>
+							<tr>
+								<td>Utente buyer:&nbsp; <a
+									href="GestioneUtentiServlet?to=redirectToPaginaProfilo&idUtente=<%=u.getIdUtente()%>"><%=u.getNome()%>
+										<%=u.getCognome()%></a> <br /></td>
+								<td><img
+									src="GestioneUtentiServlet?to=getFotoProfilo&idUtente=<%=u.getIdUtente()%>"
+									height="200" alt="Foto Profilo" /></td>
+								<td><label>Attività:</label> <a
+									href="GestioneAbilitaServlet?to=redirectToPaginaProfiloAbilita&idAbilita=<%=a.getIdAbilita()%>"><%=a.getNomeAbilita()%>
+								</a></td>
+								<td>Rating seller: <a
+									href="GestioneFeedbackServlet?to=redirectToPaginaListaFeedback&usernameUtente=<%=u.getIdUtente()%>">Vedi
+										feedback utente</a><br />
+								</td>
+								<td><label>Stato:</label> <%
+ 	if (prenotazione.isPagata()) {
+ %><label>Pagamento confermato</label> <a
+									href="GestioneFeedbackServlet?to=redirectToPaginaNuovoFeedback&usernameDestinatario=<%=u.getIdUtente()%>&idPrenotazione=<%=prenotazione.getIdPrenotazione()%>">Rilascia
+										Feedback</a> <%
+ 	} else if (prenotazione.isConfermataBuyer()
+ 					&& prenotazione.isAccettataSeller()) {
+ %><label>In attesa del pagamento</label>
+									<%
+										} else if (!prenotazione.isConfermataBuyer()
+														&& prenotazione.isAccettataSeller()) {
+									%> <label> In attesa della conferma del cliente</label> <%
+ 	} else {
+ %> <a
+									href="GestionePrenotazioniServlet?to=SetAccettataSeller&idPrenotazione=<%=prenotazione.getIdPrenotazione()%>">
+										ACCETTA OFFERTA</a><br /> <a
+									href="GestionePrenotazioniServlet?to=SetRifiutata&idPrenotazione=<%=prenotazione.getIdPrenotazione()%>">
+										RIFIUTA OFFERTA</a> <%
+ 	}
+ %></td>
+							</tr>
+						</tbody>
+					</table>
 					<%
 						}
 					%>
-
-					<div class="clearfix">
-						<img
-							src="GestioneUtentiServlet?to=getFotoProfilo&idUtente=<%=tok.getIdUtente()%>"
-							height="200" alt="Foto Profilo" />
-					</div>
-					<br /> <br />
-					<div class="clearfix">
-						<label>Headline:</label>
-						<%
-							String head = "";
-							if (utente.getHeadline() != null)
-								head = utente.getHeadline();
-						%>
-						<%=head%>
-					</div>
-					<br /> <br />
-					<div class="clearfix">
-						<label>Nome:</label>
-						<%
-							String nome = "";
-							String cognome = "";
-							if (utente.getNome() != null)
-								nome = utente.getNome();
-							if (utente.getCognome() != null)
-								cognome = utente.getCognome();
-						%>
-						<%=nome + " " + cognome%>
-					</div>
-					<br /> <br />
-					<div class="clearfix">
-						<label>Location:</label>
-						<%
-							String citta = "";
-							if (utente.getCittaAttuale() != null)
-								citta = utente.getCittaAttuale();
-						%>
-						<%=citta%>
-					</div>
-
-					<br /> <br />
-					<!-- 
-					<div class="clearfix">
-						<label>Attività 1:</label>
-						<%--=utente.getAbilita()%>
-					</div>
-
-					<br /> <br />
-					<div class="clearfix">
-						<label>Attività 2:</label>
-						<%=utente.getAbilita()--%></div>
-
-					<br /> <br /> -->
-					<div class="clearfix">
-						<label>Biografia:</label>
-						<%
-							String bio = "";
-							if (utente.getBiografia() != null)
-								bio = utente.getBiografia();
-						%>
-						<%=bio%>
-					</div>
+					<%
+						} else {
+					%>
+					<strong>Errore nel recupero dell'ordine.</strong>
+					<%
+						}
+					%>
 				</div>
 				</section>
 				<!-- aside -->

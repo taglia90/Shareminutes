@@ -1,11 +1,25 @@
 package control;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.rmi.PortableRemoteObject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import remote.GestionePrenotazioniRemote;
+import remote.GestioneRichiesteRemote;
+import remote.GestioneUtentiRemote;
+import util.LoginToken;
+import entity.Messaggio;
+import entity.Prenotazione;
+import entity.Richiesta;
+import entity.Utente;
 
 public class GestionePagineServlet extends Servlet {
 
@@ -31,6 +45,8 @@ public class GestionePagineServlet extends Servlet {
 			this.redirectToIndex(request, response);
 		if (to.equals("redirectToGestioneOrdini"))
 			this.redirectToGestioneOrdini(request, response);
+		if (to.equals("redirectToDettaglioOrdine"))
+			this.redirectToDettaglioOrdine(request, response);
 		if (to.equals("redirectToClientiEFornitori"))
 			this.redirectToClientiEFornitori(request, response);
 		if (to.equals("redirectToPreferiti"))
@@ -64,13 +80,110 @@ public class GestionePagineServlet extends Servlet {
 
 	private void redirectToGestioneOrdini(HttpServletRequest request,
 			HttpServletResponse response) {
-		redirect("utente/gestioneOrdini.jsp", request, response);
+
+		HttpSession session = request.getSession();
+		try {
+
+			Context jndiContext = new javax.naming.InitialContext();
+			Object ref1 = jndiContext.lookup("GestionePrenotazioni/remote");
+
+			GestionePrenotazioniRemote gestionePrenotazioniRemote = (GestionePrenotazioniRemote) PortableRemoteObject
+					.narrow(ref1, GestionePrenotazioniRemote.class);
+
+			LoginToken tok = (LoginToken) session.getAttribute("LoginToken");
+			int idUtente = tok.getIdUtente();
+			int idAltroUtente;
+			List<Prenotazione> listaOrdiniAsABuyer = new ArrayList<Prenotazione>();
+			List<Prenotazione> listaOrdiniAsASeller = new ArrayList<Prenotazione>();
+
+			if (request.getParameter("idUtente") == null) {
+				listaOrdiniAsABuyer = gestionePrenotazioniRemote
+						.getListaOrdiniAsABuyer(idUtente);
+				listaOrdiniAsASeller = gestionePrenotazioniRemote
+						.getListaOrdiniAsASeller(idUtente);
+			} else {
+				idAltroUtente = Integer.parseInt(request
+						.getParameter("idUtente"));
+				listaOrdiniAsABuyer = gestionePrenotazioniRemote
+						.getListaOrdiniAsABuyerDiUtenteSeller(idUtente,
+								idAltroUtente);
+				listaOrdiniAsASeller = gestionePrenotazioniRemote
+						.getListaOrdiniAsASellerDiUtenteBuyer(idUtente,
+								idAltroUtente);
+
+			}
+
+			session.setAttribute("listaOrdiniAsABuyer", listaOrdiniAsABuyer);
+			session.setAttribute("listaOrdiniAsASeller", listaOrdiniAsASeller);
+
+			redirect("utente/gestioneOrdini.jsp", request, response);
+		} catch (NamingException e) {
+			e.printStackTrace();
+		}
 	}
 
+	private void redirectToDettaglioOrdine(HttpServletRequest request,
+			HttpServletResponse response) {
+
+		HttpSession session = request.getSession();
+		try {
+
+			Context jndiContext = new javax.naming.InitialContext();
+			Object ref1 = jndiContext.lookup("GestionePrenotazioni/remote");
+			GestionePrenotazioniRemote gestionePrenotazioniRemote = (GestionePrenotazioniRemote) PortableRemoteObject
+					.narrow(ref1, GestionePrenotazioniRemote.class);
+
+			if (request.getParameter("idPrenotazione") != null) {
+				int idPrenotazione = Integer.parseInt(request
+						.getParameter("idPrenotazione"));
+
+				Prenotazione prenotazione = gestionePrenotazioniRemote
+						.getPrenotazione(idPrenotazione);
+
+				session.setAttribute("prenotazione", prenotazione);
+
+				redirect("utente/dettaglioOrdine.jsp", request, response);
+			} else {
+				System.out.println("Errore Prenotazione non presente");
+			}
+		} catch (NamingException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	// È identica a GestionePagineServlet?to=redirectToPaginaAmicizie
 	private void redirectToClientiEFornitori(HttpServletRequest request,
 			HttpServletResponse response) {
-		redirect("utente/clientiEFornitori.jsp", request, response);
 
+		HttpSession session = request.getSession();
+		try {
+			Context jndiContext = new javax.naming.InitialContext();
+			Object ref1 = jndiContext.lookup("GestioneUtenti/remote");
+			GestioneUtentiRemote gestioneUtenteRemote = (GestioneUtentiRemote) PortableRemoteObject
+					.narrow(ref1, GestioneUtentiRemote.class);
+			Object ref2 = jndiContext.lookup("GestionePrenotazioni/remote");
+			GestionePrenotazioniRemote gestionePrenotazioniRemote = (GestionePrenotazioniRemote) PortableRemoteObject
+					.narrow(ref2, GestionePrenotazioniRemote.class);
+
+			LoginToken tok = (LoginToken) session.getAttribute("LoginToken");
+			int idUtente = tok.getIdUtente();
+
+			List<Prenotazione> listaClienti = gestionePrenotazioniRemote
+					.getListaClienti(idUtente);
+			List<Prenotazione> listaFornitori = gestionePrenotazioniRemote
+					.getListaFornitori(idUtente);
+			List<Utente> listaAmiciInSospeso = gestioneUtenteRemote
+					.getListaAmiciInSospeso(idUtente);
+
+			session.setAttribute("listaClienti", listaClienti);
+			session.setAttribute("listaFornitori", listaFornitori);
+			session.setAttribute("listaAmiciInSospeso", listaAmiciInSospeso);
+			redirect("utente/listaAmici.jsp", request, response);
+
+		} catch (NamingException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void redirectToPreferiti(HttpServletRequest request,

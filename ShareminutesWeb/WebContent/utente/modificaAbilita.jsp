@@ -9,8 +9,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="en">
 <head>
-<title>SWIMv2 - Modifica Attività</title>
-<meta name="description" content="Admin - Modifica Abilità" />
+<title>Modifica Attività</title>
+<meta name="description" content="Modifica Abilità" />
 <meta charset="utf-8" />
 <link rel="stylesheet" href="css/reset.css" type="text/css" media="all" />
 <link rel="stylesheet" href="css/layout.css" type="text/css" media="all" />
@@ -206,14 +206,14 @@
 						<br /> <br />
 
 
-
+						<!-- 
 						<div class="clearfix">
 							<label>Selezionare i giorni della settimana e le fasce
 								orarie in cui si è disponibili per l'attività.</label>
 
 							<div class="input">
 
-								<%
+								<%--
 									Disponibilita disponibilita = (Disponibilita) session
 											.getAttribute("disponibilita");
 									String tabella = "";
@@ -248,18 +248,18 @@
 										tabella += "</select><br /><br />\n";
 									}
 								%>
-								<%=tabella%>
-
-								<!-- <label>Lunedì</label>
+								<%=tabella--%>
+ -->
+						<!-- <label>Lunedì</label>
 									<select name="disponibilitaLunedì">
 										<option value="Lunedì0">0</option>
 										<option value="Lunedì1">1</option>
 									</select> -->
-							</div>
+						<!--					</div>
 						</div>
+-->
 
-
-						<!-- <div class="clearfix">
+						<div class="clearfix">
 							<label>Selezionare le fasce orarie o i giorni della
 								settimana in cui non si vuole ricevere nessuna offerta.</label>
 							<table>
@@ -279,7 +279,7 @@
 									<th>&nbsp;&nbsp;&nbsp;&nbsp;</th>
 									<th>Domenica</th>
 								</tr>
-								<%--
+								<%
 									List<String> disponibilita = (List<String>) session
 											.getAttribute("disponibilita");
 									String tabella = "";
@@ -302,10 +302,10 @@
 										tabella += "</tr>\n";
 									}
 								%>
-								<%=tabella--%>
+								<%=tabella%>
 
 							</table>
-						</div>-->
+						</div>
 						<br /> <br /> <br /> <br /> <label>Paypal connect</label>
 						<div class="clearfix">
 							<input type="checkbox" name="pubblicaAbilita" value="1" />

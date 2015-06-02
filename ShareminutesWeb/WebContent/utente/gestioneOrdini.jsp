@@ -1,6 +1,7 @@
+<%@page import="entity.Prenotazione"%>
 <%@ page import="util.LoginToken"%>
 <%@ page import="util.LoginToken.TipoAccesso"%>
-<%@ page import="entity.Abilita"%>
+<%@ page import="entity.Richiesta"%>
 <%@ page import="java.util.List"%>
 
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
@@ -8,8 +9,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="en">
 <head>
-<title>SWIMv2 - Attività</title>
-<meta name="description" content="Lista Abilità" />
+<title>Gestione ordini</title>
+<meta name="description" content="gestione ordini" />
 <meta charset="utf-8" />
 <link rel="stylesheet" href="css/reset.css" type="text/css" media="all" />
 <link rel="stylesheet" href="css/layout.css" type="text/css" media="all" />
@@ -59,7 +60,7 @@
 						href="GestioneRicercheServlet?to=redirectToPaginaRicerca">Search</a></li>
 					<li><a href="#">Profile</a>
 						<ul>
-							<li class="current"><a
+							<li><a
 								href="GestionePagineServlet?to=redirectToGestioneOrdini">Gestione
 									ordini</a></li>
 							<li><a
@@ -90,21 +91,7 @@
 			</h1>
 			</header>
 
-			<div class="nav-box2">
-				<nav>
-				<ul>
-					<li><a
-						href="GestioneUtentiServlet?to=redirectToPaginaProfilo&idUtente=<%=tok.getIdUtente()%>">Profilo</a></li>
-					<li><a
-						href="GestioneAbilitaServlet?to=redirectToPaginaListaAbilitaUser">Attività</a></li>
-					<li><a
-						href="GestioneUtentiServlet?to=redirectToPaginaPagamento">Pagamento</a></li>
-					<li><a
-						href="GestioneUtentiServlet?to=redirectToPaginaSicurezza">Sicurezza</a></li>
-				</ul>
-				</nav>
-			</div>
-
+			
 			<div class="wrapper indent">
 				<!-- content -->
 				<section id="content">
@@ -133,44 +120,35 @@
 						}
 					%>
 					<br />
-					<h2>Attività</h2>
+					<h2>Lista ordini as a buyer</h2>
 					<%
-						List<Abilita> listaAbilita = (List<Abilita>) session
-								.getAttribute("listaAbilita");
-						if (listaAbilita != null && listaAbilita.size() != 0) {
+						List<Prenotazione> listaOrdiniAsABuyer = (List<Prenotazione>) session
+								.getAttribute("listaOrdiniAsABuyer");
+						if (listaOrdiniAsABuyer != null
+								&& listaOrdiniAsABuyer.size() != 0) {
 					%>
 					<table class="zebra-striped">
 						<thead>
 							<tr>
-								<th>Foto</th>
+								<th>Utente Seller</th>
 								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-								<th>Nome</th>
+								<th>Attività</th>
 								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-								<th>Descrizione</th>
-								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-								<th>Modifica</th>
-								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-								<th>Elimina</th>
+								<th></th>
 							</tr>
 						</thead>
 						<tbody>
 							<%
-								for (Abilita abilita : listaAbilita) {
+								for (Prenotazione prenotazione  : listaOrdiniAsABuyer) {
 							%>
 							<tr>
-								<td><img
-									src="GestioneAbilitaServlet?to=getFotoAbilita&idAbilita=<%=abilita.getIdAbilita()%>"
-									height="200" alt="Foto Attività" /></td>
+								<td><%=prenotazione.getUtenteSeller().getNome()%> <%=prenotazione.getUtenteSeller().getCognome()%></td>
 								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-								<td><%=abilita.getNomeAbilita()%></td>
-								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-								<td><%=abilita.getDescrizioneAbilita()%></td>
+								<td><%=prenotazione.getAbilita().getNomeAbilita()%></td>
 								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
 								<td><a
-									href="GestioneAbilitaServlet?to=redirectToPaginaModificaAbilita&idAbilita=<%=abilita.getIdAbilita()%>">Modifica</a></td>
-								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-								<td><a
-									href="GestioneAbilitaServlet?to=eliminaAbilita&idAbilita=<%=abilita.getIdAbilita()%>">Elimina</a></td>
+									href="GestionePagineServlet?to=redirectToDettaglioOrdine&idPrenotazione=<%=prenotazione.getIdPrenotazione()%>">Visualizza
+										ordine completo.</a></td>
 							</tr>
 							<%
 								}
@@ -180,16 +158,55 @@
 					<%
 						} else {
 					%>
-					<strong>Non hai ancora selezionato nessuna abilità.</strong>
+					<strong>Non ci sono ordini.</strong>
 					<%
 						}
 					%>
-					<br /> <br /> <a
-						href="GestioneAbilitaServlet?to=redirectToPaginaCreazioneAbilita">Proponi
-						una nuova abilità</a> <br /> <br />
-					<!-- <a
-						href="GestioneAbilitaServlet?to=redirectToPaginaAggiungiAbilitaUtente">Aggiungi
-						o elimina le tue abilità.</a>-->
+					<br />
+					<h2>Lista ordini as a seller</h2>
+					<%
+						List<Prenotazione> listaOrdiniAsASeller = (List<Prenotazione>) session
+								.getAttribute("listaOrdiniAsASeller");
+						if (listaOrdiniAsASeller != null
+								&& listaOrdiniAsASeller.size() != 0) {
+					%>
+					<table class="zebra-striped">
+						<thead>
+							<tr>
+								<th>Utente buyer</th>
+								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+								<th>Attività</th>
+								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							<%
+								for (Prenotazione prenotazione : listaOrdiniAsASeller) {
+							%>
+							<tr>
+								<td><%=prenotazione.getUtenteBuyer().getNome()%> <%=prenotazione.getUtenteSeller().getCognome()%></td>
+								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+								<td><%=prenotazione.getAbilita().getNomeAbilita()%></td>
+								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+								<td><a
+									href="GestionePagineServlet?to=redirectToDettaglioOrdine&idPrenotazione=<%=prenotazione.getIdPrenotazione()%>">Visualizza
+										ordine completo.</a></td>
+							</tr>
+							<%
+								}
+							%>
+						</tbody>
+					</table>
+					<%
+						} else {
+					%>
+					<strong>Non ci sono ordini.</strong>
+					<%
+						}
+					%>
+
+
 				</div>
 				</section>
 				<!-- aside -->

@@ -1,6 +1,8 @@
+<%@page import="control.GestionePrenotazioni"%>
 <%@ page import="util.LoginToken"%>
 <%@ page import="util.LoginToken.TipoAccesso"%>
 <%@ page import="entity.Utente"%>
+<%@ page import="entity.Prenotazione"%>
 <%@ page import="java.util.List"%>
 
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
@@ -8,7 +10,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="en">
 <head>
-<title>SWIMv2 - Lista Amici</title>
+<title>Shareminutes - Clienti e fornitori</title>
 <meta name="description" content="Lista Amici" />
 <meta charset="utf-8" />
 <link rel="stylesheet" href="css/reset.css" type="text/css" media="all" />
@@ -191,45 +193,52 @@
 						}
 					%>
 
-					<h2>Ecco i tuoi amici:</h2>
+					<h2>Ecco i tuoi clienti:</h2>
 					<%
-						List<Utente> listaAmici = (List<Utente>) session
-								.getAttribute("listaAmici");
+						List<Prenotazione> listaClienti = (List<Prenotazione>) session
+								.getAttribute("listaClienti");
 						//System.out.println("listamici"+listaAmici);
-						if (listaAmici != null && listaAmici.size() != 0) {
+						if (listaClienti != null && listaClienti.size() != 0) {
 					%>
 					<table class="zebra-striped">
 						<thead>
 							<tr>
 								<th>Foto</th>
 								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-								<th>Username</th>
-								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 								<th>Nome</th>
 								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 								<th>Cognome</th>
+								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+								<th>Numero vendite</th>
 								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 								<th>Feedback</th>
 							</tr>
 						</thead>
 						<tbody>
 							<%
-								for (Utente utente : listaAmici) {
+								Utente utente;
+									//GestionePrenotazioni gp = new GestionePrenotazioni();
+									Long numeroVendite;
+									for (Prenotazione prenotazione : listaClienti) {
+										utente = prenotazione.getUtenteBuyer();
+										numeroVendite = prenotazione.getNumeroVendite();//gp.getNumeroVendite(utente.getIdUtente(),prenotazione.getUtenteSeller().getIdUtente());
 							%>
 
 							<tr>
 								<td align="center"><img
-									src="GestioneUtentiServlet?to=getFotoProfilo&username=<%=utente.getUsername()%>"
+									src="GestioneUtentiServlet?to=getFotoProfilo&idUtente=<%=utente.getIdUtente()%>"
 									height="80" alt="Foto Profilo" /></td>
-								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-								<td><%=utente.getUsername()%></td>
 								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
 								<td><%=utente.getNome()%></td>
 								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
 								<td><%=utente.getCognome()%></td>
 								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
 								<td><a
-									href="GestioneFeedbackServlet?to=redirectToPaginaListaFeedback&usernameUtente=<%=utente.getUsername()%>">Vedi
+									href="GestionePagineServlet?to=redirectToGestioneOrdini&idUtente=<%=utente.getIdUtente()%>"><%=numeroVendite%>
+								</a></td>
+								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+								<td><a
+									href="GestioneFeedbackServlet?to=redirectToPaginaListaFeedback&idUtente=<%=utente.getIdUtente()%>">Vedi
 										feedback</a></td>
 							</tr>
 							<tr>
@@ -245,10 +254,77 @@
 					<%
 						} else {
 					%>
-					<strong>Non hai amici.</strong>
+					<strong>Non hai clienti.</strong>
 					<%
 						}
 					%>
+
+					<h2>Ecco i tuoi fornitori:</h2>
+					<%
+						List<Prenotazione> listaFornitori = (List<Prenotazione>) session
+								.getAttribute("listaFornitori");
+						//System.out.println("listamici"+listaAmici);
+						if (listaFornitori != null && listaFornitori.size() != 0) {
+					%>
+					<table class="zebra-striped">
+						<thead>
+							<tr>
+								<th>Foto</th>
+								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+								<th>Nome</th>
+								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+								<th>Cognome</th>
+								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+								<th>Numero acquisti</th>
+								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+								<th>Feedback</th>
+							</tr>
+						</thead>
+						<tbody>
+							<%
+								//GestionePrenotazioni gp = new GestionePrenotazioni();
+									Long numeroAcquisti;
+									Utente utente;
+									for (Prenotazione prenotazione : listaFornitori) {
+										utente = prenotazione.getUtenteSeller();
+										numeroAcquisti = prenotazione.getNumeroAcquisti();//gp.getNumeroAcquisti(utente.getIdUtente(),prenotazione.getUtenteBuyer().getIdUtente());
+							%>
+
+							<tr>
+								<td align="center"><img
+									src="GestioneUtentiServlet?to=getFotoProfilo&idUtente=<%=utente.getIdUtente()%>"
+									height="80" alt="Foto Profilo" /></td>
+								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+								<td><%=utente.getNome()%></td>
+								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+								<td><%=utente.getCognome()%></td>
+								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+								<td><a
+									href="GestionePagineServlet?to=redirectToGestioneOrdini&idUtente=<%=utente.getIdUtente()%>"><%=numeroAcquisti%>
+								</a></td>
+								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+								<td><a
+									href="GestioneFeedbackServlet?to=redirectToPaginaListaFeedback&idUtente=<%=utente.getIdUtente()%>">Vedi
+										feedback</a></td>
+							</tr>
+							<tr>
+								<td>&nbsp;</td>
+							</tr>
+							<%
+								}
+							%>
+						</tbody>
+
+					</table>
+
+					<%
+						} else {
+					%>
+					<strong>Non hai fornitori.</strong>
+					<%
+						}
+					%>
+
 				</div>
 
 

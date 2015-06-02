@@ -30,7 +30,8 @@ public class Abilita implements Serializable {
 	private String cittaDoveOffreServizio;
 	private int minutiNecessari;
 	private int minutiCondivisi;
-	//private String disponibilita;
+	private String disponibilita;
+	
 
 	@Column(name = "idAbilitaddd")
 	private List<Utente> utente = new ArrayList<Utente>();
@@ -41,7 +42,7 @@ public class Abilita implements Serializable {
 
 	public Abilita(int id, String nomeAb, String descrizioneAb, boolean isAppr,
 			byte[] fotoAbilita, int minutiNecessari, int tariffa, int minuti,
-			String cittaDoveOffreServizio) {
+			String cittaDoveOffreServizio, String disponibilita) {
 		super();
 		setIdAbilita(id);
 		setNomeAbilita(nomeAb);
@@ -52,7 +53,7 @@ public class Abilita implements Serializable {
 		setTariffa(tariffa);
 		setMinuti(minuti);
 		setCittaDoveOffreServizio(cittaDoveOffreServizio);
-		//setDisponibilita(disponibilita);
+		setDisponibilita(disponibilita);
 	}
 	
 	public Abilita(int id, int minutiCondivisi){
@@ -155,7 +156,7 @@ public class Abilita implements Serializable {
 		this.minutiCondivisi = minutiCondivisi;
 	}
 
-	/*@Lob
+	@Lob
 	@Column(name = "disponibilita")
 	public String getDisponibilita() {
 		return disponibilita;
@@ -163,7 +164,7 @@ public class Abilita implements Serializable {
 
 	public void setDisponibilita(String disponibilita) {
 		this.disponibilita = disponibilita;
-	}*/
+	}
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "UtenteAbilita", joinColumns = { @JoinColumn(name = "idAbilita", nullable = false) }, inverseJoinColumns = { @JoinColumn(name = "idUtente", nullable = false) })

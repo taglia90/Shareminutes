@@ -90,9 +90,14 @@ public @Stateless(name = "GestioneTag") class GestioneTag implements
 	}
 
 	public List<Tag> getListaTagDiAbilita(int idAbilita) {
-		Abilita abilita = entityManager.find(Abilita.class, idAbilita);
+		Query query = entityManager
+				.createQuery("FROM Abilita WHERE idAbilita=:idA");
+		query.setParameter("idA", idAbilita);
+		Abilita abilita = (Abilita) query.getSingleResult();
+		if (abilita == null)
+			return null;
 
-		Query query = entityManager.createQuery("FROM Tag WHERE abilita=:ab");
+		query = entityManager.createQuery("FROM Tag WHERE abilita=:ab");
 		query.setParameter("ab", abilita);
 		List<Tag> listaTag = (List<Tag>) query.getResultList();
 		if (listaTag.isEmpty())

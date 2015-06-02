@@ -1,6 +1,7 @@
 package entity;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -17,29 +18,47 @@ public class Prenotazione implements Serializable {
 
 	private int idPrenotazione;
 	private Date dataPrenotazione;
-	private int orarioDalle;
-	private int orarioAlle;
-	private Boolean isConfermata;
+	/*
+	 * private int orarioDalle; private int orarioAlle;
+	 */
+	private String orarioPrenotato;
+	private Boolean isAccettataSeller;
+	private Boolean isConfermataBuyer;
 	private Boolean isPagata;
-	private Utente utenteRichiedente;
+	private Boolean isFeedbackRilasciato;
+	private Boolean isRifiutata;
+	private Utente utenteBuyer;
+	private Utente utenteSeller;
 	private Abilita abilita;
+	private LocalDateTime dataInvioPrenotazione;
+	private Long numeroVendite;
+	private Long numeroAcquisti;
 
 	public Prenotazione() {
 		super();
 	}
 
-	public Prenotazione(int id, Date data, int orarioDalle, int orarioAlle,
-			Boolean isConfermata, Boolean isPagata, Utente utente,
-			Abilita abilita) {
+	public Prenotazione(int id, Date data, String orarioPrenotato,
+			Utente utenteB, Utente utenteS, Abilita abilita,
+			boolean isAccettataSeller, boolean isConfermataBuyer,
+			boolean isFeedbackRilasciato, boolean isPagata,
+			boolean isRifiutata, LocalDateTime dataInvioPrenotazione) {
 		super();
 		setIdPrenotazione(id);
 		setDataPrenotazione(data);
-		setOrarioDalle(orarioDalle);
-		setOrarioAlle(orarioAlle);
-		setConfermata(isConfermata);
-		setPagata(isPagata);
-		setUtenteRichiedente(utente);
+		// setOrarioDalle(orarioDalle);
+		// setOrarioAlle(orarioAlle);
+		setOrarioPrenotato(orarioPrenotato);
+
+		setUtenteBuyer(utenteB);
+		setUtenteSeller(utenteS);
 		setAbilita(abilita);
+		setAccettataSeller(isAccettataSeller);
+		setConfermataBuyer(isConfermataBuyer);
+		setFeedbackRilasciato(isFeedbackRilasciato);
+		setPagata(isPagata);
+		setRifiutata(isRifiutata);
+		setDataInvioPrenotazione(dataInvioPrenotazione);
 
 	}
 
@@ -62,31 +81,45 @@ public class Prenotazione implements Serializable {
 		this.dataPrenotazione = dataPrenotazione;
 	}
 
-	@Column(name = "orarioDalle")
-	public int getOrarioDalle() {
-		return orarioDalle;
+	/*
+	 * @Column(name = "orarioDalle") public int getOrarioDalle() { return
+	 * orarioDalle; }
+	 * 
+	 * public void setOrarioDalle(int orarioDalle) { this.orarioDalle =
+	 * orarioDalle; }
+	 * 
+	 * @Column(name = "orarioAlle") public int getOrarioAlle() { return
+	 * orarioAlle; }
+	 * 
+	 * public void setOrarioAlle(int orarioAlle) { this.orarioAlle = orarioAlle;
+	 * }
+	 */
+
+	@Column(name = "orarioPrenotato")
+	public String getOrarioPrenotato() {
+		return orarioPrenotato;
 	}
 
-	public void setOrarioDalle(int orarioDalle) {
-		this.orarioDalle = orarioDalle;
+	public void setOrarioPrenotato(String orarioPrenotato) {
+		this.orarioPrenotato = orarioPrenotato;
 	}
 
-	@Column(name = "orarioAlle")
-	public int getOrarioAlle() {
-		return orarioAlle;
+	@Column(name = "isAccettataSeller")
+	public Boolean isAccettataSeller() {
+		return isAccettataSeller;
 	}
 
-	public void setOrarioAlle(int orarioAlle) {
-		this.orarioAlle = orarioAlle;
+	public void setAccettataSeller(Boolean isAccettataSeller) {
+		this.isAccettataSeller = isAccettataSeller;
 	}
 
-	@Column(name = "isConfermata")
-	public Boolean isConfermata() {
-		return isConfermata;
+	@Column(name = "isConfermataBuyer")
+	public Boolean isConfermataBuyer() {
+		return isConfermataBuyer;
 	}
 
-	public void setConfermata(Boolean isConfermata) {
-		this.isConfermata = isConfermata;
+	public void setConfermataBuyer(Boolean isConfermataBuyer) {
+		this.isConfermataBuyer = isConfermataBuyer;
 	}
 
 	@Column(name = "isPagata")
@@ -96,6 +129,33 @@ public class Prenotazione implements Serializable {
 
 	public void setPagata(Boolean isPagata) {
 		this.isPagata = isPagata;
+	}
+
+	@Column(name = "isFeedbackRilasciato")
+	public boolean isFeedbackRilasciato() {
+		return isFeedbackRilasciato;
+	}
+
+	public void setFeedbackRilasciato(boolean isFeedbackRilasciato) {
+		this.isFeedbackRilasciato = isFeedbackRilasciato;
+	}
+
+	@Column(name = "isRifiutata")
+	public boolean isRifiutata() {
+		return isRifiutata;
+	}
+
+	public void setRifiutata(boolean isRifiutata) {
+		this.isRifiutata = isRifiutata;
+	}
+
+	@Column(name = "dataInvioPrenotazione")
+	public LocalDateTime getDataInvioPrenotazione() {
+		return dataInvioPrenotazione;
+	}
+
+	public void setDataInvioPrenotazione(LocalDateTime dataInvioPrenotazione) {
+		this.dataInvioPrenotazione = dataInvioPrenotazione;
 	}
 
 	/*
@@ -118,12 +178,40 @@ public class Prenotazione implements Serializable {
 	}
 
 	@ManyToOne(optional = false)
-	@PrimaryKeyJoinColumn(name = "utenteRichiedente", referencedColumnName = "idUtente")
-	public Utente getUtenteRichiedente() {
-		return this.utenteRichiedente;
+	@PrimaryKeyJoinColumn(name = "utenteBuyer", referencedColumnName = "idUtente")
+	public Utente getUtenteBuyer() {
+		return this.utenteBuyer;
 	}
 
-	public void setUtenteRichiedente(Utente utenteRichiedente) {
-		this.utenteRichiedente = utenteRichiedente;
+	public void setUtenteBuyer(Utente utenteBuyer) {
+		this.utenteBuyer = utenteBuyer;
 	}
+
+	@ManyToOne(optional = false)
+	@PrimaryKeyJoinColumn(name = "utenteSeller", referencedColumnName = "idUtente")
+	public Utente getUtenteSeller() {
+		return this.utenteSeller;
+	}
+
+	public void setUtenteSeller(Utente utenteSeller) {
+		this.utenteSeller = utenteSeller;
+	}
+
+	// NON SONO TABELLE NEL DB
+	public Long getNumeroVendite() {
+		return this.numeroVendite;
+	}
+
+	public void setNumeroVendite(Long numeroVendite) {
+		this.numeroVendite = numeroVendite;
+	}
+
+	public Long getNumeroAcquisti() {
+		return this.numeroAcquisti;
+	}
+
+	public void setNumeroAcquisti(Long numeroAcquisti) {
+		this.numeroAcquisti = numeroAcquisti;
+	}
+
 }

@@ -1,13 +1,10 @@
 package control;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -18,24 +15,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import remote.GestioneAbilitaRemote;
-import remote.GestioneDisponibilitaRemote;
-import remote.GestionePrenotazioniRemote;
-import remote.GestioneTagRemote;
-import remote.GestioneUtentiRemote;
-import remote.RegistrazioneRemote;
-import util.GetBytesFromFile;
-import util.LoginToken;
-
-import com.oreilly.servlet.MultipartRequest;
-
-import entity.Abilita;
-import entity.Disponibilita;
-import entity.Tag;
+import entity.Prenotazione;
 import entity.Utente;
 import exception.AbilitaException;
-import exception.RegistrazioneException;
-import exception.TagException;
+import exception.AmiciziaException;
+import exception.PrenotazioneException;
+import remote.GestioneAbilitaRemote;
+import remote.GestionePrenotazioniRemote;
+import remote.GestioneUtentiRemote;
+import util.LoginToken;
 
 public class GestionePrenotazioniServlet extends Servlet {
 	private static final long serialVersionUID = 1L;
@@ -53,6 +41,14 @@ public class GestionePrenotazioniServlet extends Servlet {
 		String to = (String) request.getParameter("to");
 		if (to.equals("nuovaPrenotazione"))
 			this.nuovaPrenotazione(request, response);
+		if (to.equals("SetAccettataSeller"))
+			this.SetAccettataSeller(request, response);
+		if (to.equals("SetConfermataBuyer"))
+			this.SetConfermataBuyer(request, response);
+		if (to.equals("SetRifiutata"))
+			this.SetRifiutata(request, response);
+		if (to.equals("SetPagata"))
+			this.SetPagata(request, response);
 
 	}
 
@@ -65,43 +61,54 @@ public class GestionePrenotazioniServlet extends Servlet {
 			Object ref1 = jndiContext.lookup("GestionePrenotazioni/remote");
 			GestionePrenotazioniRemote gestionePrenotazioniRemote = (GestionePrenotazioniRemote) PortableRemoteObject
 					.narrow(ref1, GestionePrenotazioniRemote.class);
-
+			Object ref2 = jndiContext.lookup("GestioneUtenti/remote");
+			GestioneUtentiRemote gestioneUtentiRemote = (GestioneUtentiRemote) PortableRemoteObject
+					.narrow(ref2, GestioneUtentiRemote.class);
 			request.setCharacterEncoding("UTF-8");
+
+			if (request.getParameter("data") == null)
+				throw new PrenotazioneException(
+						"Errore! Nessuna data specificata");
 
 			String stringaData = request.getParameter("data");
 
 			SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
-			String dateInString = stringaData;
-
-			Date data = formatter.parse(dateInString);
+			Date data = formatter.parse(stringaData);
 			// System.out.println(data);
 			// System.out.println(formatter.format(data));
 
-			int disponibilitaDalle = Integer.parseInt(request
-					.getParameter("disponibilitaDalle"));
-			int disponibilitaAlle = Integer.parseInt(request
-					.getParameter("disponibilitaAlle"));
-			int idAbilita = Integer.parseInt(request
-					.getParameter("idAbilita"));
+			// int disponibilitaDalle =
+			// Integer.parseInt(request.getParameter("disponibilitaDalle"));
+			// int disponibilitaAlle =
+			// Integer.parseInt(request.getParameter("disponibilitaAlle"));
+			String[] orarioPrenotato = request
+					.getParameterValues("disponibilita");
+			String stringaOrarioPrenotato = convertArrayToString(orarioPrenotato);
+			int idAbilita = Integer.parseInt(request.getParameter("idAbilita"));
 
-			if (disponibilitaDalle > disponibilitaAlle) {
-				session.setAttribute("Errore",
-						"L'ora di fine di un lavoro non può essere minore di quella di inizio.");
-				redirect("utente/profiloAbilita.jsp", request, response);
-				return;
+			/*
+			 * if (disponibilitaDalle > disponibilitaAlle) {
+			 * session.setAttribute("Errore",
+			 * "L'ora di fine di un lavoro non può essere minore di quella di inizio."
+			 * ); redirect("utente/profiloAbilita.jsp", request, response);
+			 * return;
+			 * 
+			 * }
+			 */
 
-			}
+			Utente utenteSeller = gestioneUtentiRemote
+					.getListaUtentiConAbilita(idAbilita).get(0);
 
 			LoginToken tok = (LoginToken) session.getAttribute("LoginToken");
-			gestionePrenotazioniRemote.nuovaPrenotazione(data,
-					disponibilitaDalle, disponibilitaAlle, tok.getIdUtente(),
-					idAbilita);
+			int idPrenotazione = gestionePrenotazioniRemote.nuovaPrenotazione(
+					data, stringaOrarioPrenotato, tok.getIdUtente(),
+					utenteSeller.getIdUtente(), idAbilita);
 			session.setAttribute("Successo",
 					"Prenotazione avvenuta con successo!");
 
 			redirect(
-					"GestioneAbilitaServlet?to=redirectToPaginaProfiloAbilita&idAbilita="
-							+ idAbilita, request, response);
+					"GestionePagineServlet?to=redirectToDettaglioOrdine&idPrenotazione="
+							+ idPrenotazione, request, response);
 			return;
 
 		} catch (NamingException e) {
@@ -111,7 +118,160 @@ public class GestionePrenotazioniServlet extends Servlet {
 		} catch (ParseException e) {
 			// Errore nel parsing della data
 			e.printStackTrace();
+		} catch (PrenotazioneException e) {
+			e.printStackTrace();
 		}
+	}
+
+	private void SetAccettataSeller(HttpServletRequest request,
+			HttpServletResponse response) {
+		HttpSession session = request.getSession();
+		try {
+
+			Context jndiContext = new javax.naming.InitialContext();
+			Object ref1 = jndiContext.lookup("GestionePrenotazioni/remote");
+			GestionePrenotazioniRemote gestionePrenotazioniRemote = (GestionePrenotazioniRemote) PortableRemoteObject
+					.narrow(ref1, GestionePrenotazioniRemote.class);
+
+			request.setCharacterEncoding("UTF-8");
+
+			int idPrenotazione = Integer.parseInt(request
+					.getParameter("idPrenotazione"));
+
+			gestionePrenotazioniRemote.setAccettataSeller(idPrenotazione);
+			session.setAttribute("Successo", "Conferma avvenuta con successo!");
+
+			redirect(
+					"GestionePagineServlet?to=redirectToDettaglioOrdine&idPrenotazione="
+							+ idPrenotazione, request, response);
+			return;
+
+		} catch (NamingException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void SetConfermataBuyer(HttpServletRequest request,
+			HttpServletResponse response) {
+		HttpSession session = request.getSession();
+		try {
+
+			Context jndiContext = new javax.naming.InitialContext();
+			Object ref1 = jndiContext.lookup("GestionePrenotazioni/remote");
+			GestionePrenotazioniRemote gestionePrenotazioniRemote = (GestionePrenotazioniRemote) PortableRemoteObject
+					.narrow(ref1, GestionePrenotazioniRemote.class);
+
+			request.setCharacterEncoding("UTF-8");
+
+			int idPrenotazione = Integer.parseInt(request
+					.getParameter("idPrenotazione"));
+
+			gestionePrenotazioniRemote.setConfermataBuyer(idPrenotazione);
+			session.setAttribute("Successo", "Conferma avvenuta con successo!");
+
+			redirect(
+					"GestionePagineServlet?to=redirectToDettaglioOrdine&idPrenotazione="
+							+ idPrenotazione, request, response);
+			return;
+
+		} catch (NamingException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void SetPagata(HttpServletRequest request,
+			HttpServletResponse response) {
+		HttpSession session = request.getSession();
+		try {
+
+			Context jndiContext = new javax.naming.InitialContext();
+			Object ref1 = jndiContext.lookup("GestionePrenotazioni/remote");
+			GestionePrenotazioniRemote gestionePrenotazioniRemote = (GestionePrenotazioniRemote) PortableRemoteObject
+					.narrow(ref1, GestionePrenotazioniRemote.class);
+			Object ref2 = jndiContext.lookup("GestioneUtenti/remote");
+			GestioneUtentiRemote gestioneUtentiRemote = (GestioneUtentiRemote) PortableRemoteObject
+					.narrow(ref2, GestioneUtentiRemote.class);
+
+			request.setCharacterEncoding("UTF-8");
+
+			int idPrenotazione = Integer.parseInt(request
+					.getParameter("idPrenotazione"));
+			Prenotazione prenotazione = gestionePrenotazioniRemote
+					.getPrenotazione(idPrenotazione);
+
+			gestionePrenotazioniRemote.setPagata(idPrenotazione);
+			gestioneUtentiRemote.creaRichiestaAmicizia(prenotazione.getUtenteBuyer().getIdUtente(),
+					prenotazione.getUtenteSeller().getIdUtente());
+			gestioneUtentiRemote.accettaAmicizia(prenotazione.getUtenteBuyer().getIdUtente(),prenotazione.getUtenteSeller().getIdUtente());
+			session.setAttribute("Successo", "Conferma avvenuta con successo!");
+
+			redirect(
+					"GestionePagineServlet?to=redirectToDettaglioOrdine&idPrenotazione="
+							+ idPrenotazione, request, response);
+			return;
+
+		} catch (NamingException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (AmiciziaException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void SetRifiutata(HttpServletRequest request,
+			HttpServletResponse response) {
+		HttpSession session = request.getSession();
+		try {
+
+			Context jndiContext = new javax.naming.InitialContext();
+			Object ref1 = jndiContext.lookup("GestionePrenotazioni/remote");
+			GestionePrenotazioniRemote gestionePrenotazioniRemote = (GestionePrenotazioniRemote) PortableRemoteObject
+					.narrow(ref1, GestionePrenotazioniRemote.class);
+
+			request.setCharacterEncoding("UTF-8");
+
+			int idPrenotazione = Integer.parseInt(request
+					.getParameter("idPrenotazione"));
+
+			gestionePrenotazioniRemote.setRifiutata(idPrenotazione);
+			session.setAttribute("Successo", "Rifiuto avvenuto con successo!");
+
+			redirect(
+					"GestionePagineServlet?to=redirectToDettaglioOrdine&idPrenotazione="
+							+ idPrenotazione, request, response);
+			return;
+
+		} catch (NamingException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static String strSeparator = " ";
+
+	public static String convertArrayToString(String[] array) {
+		String str = "";
+		if (array != null) {
+			for (int i = 0; i < array.length; i++) {
+				str = str + array[i];
+				// Do not append comma at the end of last element
+				if (i < array.length - 1) {
+					str = str + strSeparator;
+				}
+			}
+		}
+		return str;
+	}
+
+	public static String[] convertStringToArray(String str) {
+		String[] arr = str.split(strSeparator);
+		return arr;
 	}
 
 }

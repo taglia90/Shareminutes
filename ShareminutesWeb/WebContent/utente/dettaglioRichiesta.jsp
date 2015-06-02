@@ -9,7 +9,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="en">
 <head>
-<title>SWIMv2 - Dettaglio richiesta</title>
+<title>Shareminutes - Dettaglio richiesta</title>
 <meta name="description" content="Dettaglio richiesta" />
 <meta charset="utf-8" />
 <link rel="stylesheet" href="css/reset.css" type="text/css" media="all" />
@@ -186,9 +186,10 @@
 								<br /> <br /> <br />
 							</div>
 							<%
-								}
-									if (!richiesta.getHaRicevutoFeedback()) {
-							%>
+								}%>
+							<%--		if (!richiesta.getHaRicevutoFeedback()) {
+							--%>
+							<!-- 
 							<form
 								action="GestioneRichiesteServlet?to=creaNuovoMessaggio&idRichiesta=<%=richiesta.getIdRichiesta()%>"
 								method="post" name="form">
@@ -204,17 +205,17 @@
 									<button class="btn primary" type="submit">Conferma</button>
 								</div>
 							</form>
-							<%
+							<%--
 								if (richiesta.getUtenteMittente().getUsername()
 												.equals(tok.getEmail())) {
-							%>
+							--%>
 							<a
 								href="GestioneFeedbackServlet?to=redirectToPaginaNuovoFeedback&usernameDestinatario=<%=richiesta.getUtenteDestinatario().getIdUtente()%>&idRichiesta=<%=richiesta.getIdRichiesta()%>">Rilascia
-								Feedback</a>
-							<%
+								Feedback</a> -->
+							<%--
 								}
 									}
-							%>
+							--%>
 						</tbody>
 					</table>
 					<%

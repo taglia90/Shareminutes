@@ -16,14 +16,7 @@ public @Stateless(name = "GestioneDisponibilita") class GestioneDisponibilita
 	@PersistenceContext(unitName = "shareminutes")
 	private EntityManager entityManager;
 
-	public int creaDisponibilita(int idAbilita, int disponibilitaLunedìDalle,
-			int disponibilitaLunedìAlle, int disponibilitaMartedìDalle,
-			int disponibilitaMartedìAlle, int disponibilitaMercoledìDalle,
-			int disponibilitaMercoledìAlle, int disponibilitaGiovedìDalle,
-			int disponibilitaGiovedìAlle, int disponibilitaVenerdìDalle,
-			int disponibilitaVenerdìAlle, int disponibilitaSabatoDalle,
-			int disponibilitaSabatoAlle, int disponibilitaDomenicaDalle,
-			int disponibilitaDomenicaAlle) {
+	public int creaDisponibilita(int idAbilita, String stringaDisponibilita) {
 		Abilita abilita = entityManager.find(Abilita.class, idAbilita);
 		Random random = new Random();
 		Disponibilita disponibilita = null;
@@ -37,14 +30,7 @@ public @Stateless(name = "GestioneDisponibilita") class GestioneDisponibilita
 															// gia'  una
 				// disponibilita con quell'id
 				disponibilita = new Disponibilita(idDisponibilita,
-						disponibilitaLunedìDalle, disponibilitaLunedìAlle,
-						disponibilitaMartedìDalle, disponibilitaMartedìAlle,
-						disponibilitaMercoledìDalle,
-						disponibilitaMercoledìAlle, disponibilitaGiovedìDalle,
-						disponibilitaGiovedìAlle, disponibilitaVenerdìDalle,
-						disponibilitaVenerdìAlle, disponibilitaSabatoDalle,
-						disponibilitaSabatoAlle, disponibilitaDomenicaDalle,
-						disponibilitaDomenicaAlle, abilita);
+						stringaDisponibilita, abilita);
 			}
 		} while (disponibilitaEsistenteConQuellId != null);
 		entityManager.persist(disponibilita);
@@ -53,13 +39,7 @@ public @Stateless(name = "GestioneDisponibilita") class GestioneDisponibilita
 	}
 
 	public void modificaDisponibilita(int idAbilita,
-			int disponibilitaLunedìDalle, int disponibilitaLunedìAlle,
-			int disponibilitaMartedìDalle, int disponibilitaMartedìAlle,
-			int disponibilitaMercoledìDalle, int disponibilitaMercoledìAlle,
-			int disponibilitaGiovedìDalle, int disponibilitaGiovedìAlle,
-			int disponibilitaVenerdìDalle, int disponibilitaVenerdìAlle,
-			int disponibilitaSabatoDalle, int disponibilitaSabatoAlle,
-			int disponibilitaDomenicaDalle, int disponibilitaDomenicaAlle) {
+			String stringaDisponibilita) {
 
 		Query query = entityManager
 				.createQuery("FROM Disponibilita WHERE abilita_idAbilita=:idabilita");
@@ -69,7 +49,7 @@ public @Stateless(name = "GestioneDisponibilita") class GestioneDisponibilita
 				.getSingleResult();
 		Abilita abilita = entityManager.find(Abilita.class, idAbilita);
 
-		disponibilitaDaModificare
+		/*disponibilitaDaModificare
 				.setDisponibilitaLunedìDalle(disponibilitaLunedìDalle);
 		disponibilitaDaModificare
 				.setDisponibilitaLunedìAlle(disponibilitaLunedìAlle);
@@ -96,7 +76,8 @@ public @Stateless(name = "GestioneDisponibilita") class GestioneDisponibilita
 		disponibilitaDaModificare
 				.setDisponibilitaDomenicaDalle(disponibilitaDomenicaDalle);
 		disponibilitaDaModificare
-				.setDisponibilitaDomenicaAlle(disponibilitaDomenicaAlle);
+				.setDisponibilitaDomenicaAlle(disponibilitaDomenicaAlle);*/
+		disponibilitaDaModificare.setStringaDisponibilita(stringaDisponibilita);
 		disponibilitaDaModificare.setAbilita(abilita);
 		entityManager.merge(disponibilitaDaModificare);
 	}

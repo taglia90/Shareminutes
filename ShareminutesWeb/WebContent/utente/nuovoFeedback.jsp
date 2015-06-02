@@ -7,7 +7,7 @@
 
 <html lang="en">
 <head>
-<title>SWIMv2 - Feedback</title>
+<title>Shareminutes - Feedback</title>
 <meta name="description" content="Feedback" />
 <meta charset="utf-8" />
 <link rel="stylesheet" href="css/reset.css" type="text/css" media="all" />
@@ -124,9 +124,11 @@
 					<h2>Feedback</h2>
 					<form enctype="multipart/form-data"
 						<%String idRichiesta = (String) session.getAttribute("idRichiesta");
+			String idPrenotazione = (String) session
+					.getAttribute("idPrenotazione");
 			String usernameDestinatario = (String) session
 					.getAttribute("usernameDestinatario");%>
-						action="GestioneFeedbackServlet?to=nuovoFeedback&usernameDestinatario=<%=usernameDestinatario%>&idRichiesta=<%=idRichiesta%>"
+						action="GestioneFeedbackServlet?to=nuovoFeedback&usernameDestinatario=<%=usernameDestinatario%>&idRichiesta=<%=idRichiesta%>&idPrenotazione=<%=idPrenotazione%>"
 						method="post">
 						<div class="clearfix">
 							<label>Dai un voto da 1 (pessimo) a 5 (ottimo)</label> <select

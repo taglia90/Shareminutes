@@ -14,6 +14,8 @@ import util.ControlloreStringhe;
 import util.MD5Encrypter;
 import entity.Abilita;
 import entity.Amicizia;
+import entity.Follower;
+import entity.Prenotazione;
 import entity.Utente;
 import exception.AbilitaException;
 import exception.AmiciziaException;
@@ -78,9 +80,15 @@ public @Stateless(name = "GestioneUtenti") class GestioneUtenti implements
 		return abilita.getUtente();
 	}
 
+	/*
+	 * public Utente getUtenteConAbilita(int idAbilita) { Abilita abilita =
+	 * entityManager.find(Abilita.class, idAbilita); return (Utente)
+	 * abilita.getUtente(); }
+	 */
+
 	public List<Utente> getListaAmiciInSospeso(int idUtente) {
 		Query query = entityManager
-				.createQuery("FROM Amicizia a WHERE utente2_idUtente=?1)");
+				.createQuery("FROM Amicizia a WHERE utenteFornitore_idUtente=?1)");
 
 		query.setParameter(1, idUtente);
 
@@ -89,10 +97,10 @@ public @Stateless(name = "GestioneUtenti") class GestioneUtenti implements
 
 		for (Amicizia amicizia : listaAmicizia) {
 
-			if (!listaUtenti.contains(amicizia.getUtente1())
+			if (!listaUtenti.contains(amicizia.getUtenteCliente())
 					&& !amicizia.isAmiciziaAccettata()
 					&& !amicizia.isAmiciziaRifiutata()) {
-				listaUtenti.add(amicizia.getUtente1());
+				listaUtenti.add(amicizia.getUtenteCliente());
 			}
 		}
 		return listaUtenti;
@@ -100,7 +108,7 @@ public @Stateless(name = "GestioneUtenti") class GestioneUtenti implements
 
 	public List<Utente> getListaAmici(int idUtente) {
 		Query query = entityManager
-				.createQuery("FROM Amicizia a WHERE (utente1_idUtente=?1 OR utente2_idUtente=?2)");
+				.createQuery("FROM Amicizia a WHERE (utenteCliente_idUtente=?1 OR utenteFornitore_idUtente=?2)");
 
 		query.setParameter(1, idUtente);
 		query.setParameter(2, idUtente);
@@ -109,42 +117,82 @@ public @Stateless(name = "GestioneUtenti") class GestioneUtenti implements
 
 		List<Amicizia> listaAmicizia = query.getResultList();
 		for (Amicizia amicizia : listaAmicizia) {
-			if (!listaUtenti.contains(amicizia.getUtente1())
-					&& !(amicizia.getUtente1().getUsername().equals(idUtente))
+			if (!listaUtenti.contains(amicizia.getUtenteCliente())
+					&& !(amicizia.getUtenteCliente().getUsername()
+							.equals(idUtente))
 					&& amicizia.isAmiciziaAccettata()
 					&& !amicizia.isAmiciziaRifiutata()) {
-				listaUtenti.add(amicizia.getUtente1());
+				listaUtenti.add(amicizia.getUtenteCliente());
 			}
-			if (!listaUtenti.contains(amicizia.getUtente2())
-					&& !(amicizia.getUtente2().getUsername().equals(idUtente))
+			if (!listaUtenti.contains(amicizia.getUtenteFornitore())
+					&& !(amicizia.getUtenteFornitore().getUsername()
+							.equals(idUtente))
 					&& amicizia.isAmiciziaAccettata()
 					&& !amicizia.isAmiciziaRifiutata()) {
-				listaUtenti.add(amicizia.getUtente2());
+				listaUtenti.add(amicizia.getUtenteFornitore());
 			}
 		}
 		return listaUtenti;
 	}
 
-	public void creaRichiestaAmicizia(int idUtente1, int idUtente2)
+	public List<Utente> getListaFollowerDiUtente(int idUtente) {
+		Query query = entityManager
+				.createQuery("FROM Follower WHERE (utente_idUtente=?1)");
+
+		query.setParameter(1, idUtente);
+
+		List<Utente> listaUtenti = new ArrayList<Utente>();
+
+		List<Follower> listaFollower = query.getResultList();
+		for (Follower follower : listaFollower) {
+			if (!listaUtenti.contains(follower.getUtenteSeguito())
+					&& !(follower.getUtenteSeguito().getIdUtente() == idUtente)) {
+				listaUtenti.add(follower.getUtenteSeguito());
+			}
+		}
+		return listaUtenti;
+	}
+
+	public List<Follower> getListaFollower(int idUtente) {
+		Query query = entityManager
+				.createQuery("FROM Follower WHERE (utente_idUtente=?1)");
+		query.setParameter(1, idUtente);
+
+		List<Follower> listaFollower = query.getResultList();
+
+		return listaFollower;
+	}
+
+	public List<Follower> getListaFollowerPreferiti(int idUtente) {
+		Query query = entityManager
+				.createQuery("FROM Follower WHERE (utente_idUtente=?1 AND isPreferito=1)");
+		query.setParameter(1, idUtente);
+
+		List<Follower> listaFollower = query.getResultList();
+
+		return listaFollower;
+	}
+
+	public void creaRichiestaAmicizia(int idUtenteCliente, int idUtenteFornitore)
 			throws AmiciziaException {
 
-		if (idUtente1 == idUtente2)
+		if (idUtenteCliente == idUtenteFornitore)
 			throw new AmiciziaException("Non puoi essere amico di te stesso");
 
 		Random random = new Random();
 		Amicizia amicizia = null;
 		Amicizia amiciziaEsistenteConQuellId = null;
-		Utente user1 = entityManager.find(Utente.class, idUtente1);
-		Utente user2 = entityManager.find(Utente.class, idUtente2);
+		Utente user1 = entityManager.find(Utente.class, idUtenteCliente);
+		Utente user2 = entityManager.find(Utente.class, idUtenteFornitore);
 
-		if (this.getListaAmici(idUtente1).contains(user2))
+		if (this.getListaAmici(idUtenteCliente).contains(user2))
 			throw new AmiciziaException("Non puoi essere amico di te stesso");
 
 		Query query = entityManager
-				.createQuery("FROM Amicizia a WHERE utente1_idUtente=?1 AND utente2_idUtente=?2");
+				.createQuery("FROM Amicizia a WHERE utenteCliente_idUtente=?1 AND utenteFornitore_idUtente=?2");
 
-		query.setParameter(1, idUtente1);
-		query.setParameter(2, idUtente2);
+		query.setParameter(1, idUtenteCliente);
+		query.setParameter(2, idUtenteFornitore);
 
 		List<Amicizia> listaAmicizia = query.getResultList();
 
@@ -169,10 +217,10 @@ public @Stateless(name = "GestioneUtenti") class GestioneUtenti implements
 		}
 
 		Query query2 = entityManager
-				.createQuery("FROM Amicizia a WHERE utente1_idUtente=?1 AND utente2_idUtente=?2");
+				.createQuery("FROM Amicizia a WHERE utenteCliente_idUtente=?1 AND utenteFornitore_idUtente=?2");
 
-		query2.setParameter(1, idUtente2);
-		query2.setParameter(2, idUtente1);
+		query2.setParameter(1, idUtenteFornitore);
+		query2.setParameter(2, idUtenteCliente);
 
 		List<Amicizia> listaAmicizia2 = query2.getResultList();
 
@@ -194,10 +242,10 @@ public @Stateless(name = "GestioneUtenti") class GestioneUtenti implements
 		if (!query2.getResultList().isEmpty()) {
 
 			if (listaAmicizia2.get(0).isAmiciziaRifiutata()) {
-				Utente utenteTemp = listaAmicizia2.get(0).getUtente1();
-				listaAmicizia2.get(0).setUtente1(
-						listaAmicizia2.get(0).getUtente2());
-				listaAmicizia2.get(0).setUtente2(utenteTemp);
+				Utente utenteTemp = listaAmicizia2.get(0).getUtenteCliente();
+				listaAmicizia2.get(0).setUtenteCliente(
+						listaAmicizia2.get(0).getUtenteFornitore());
+				listaAmicizia2.get(0).setUtenteFornitore(utenteTemp);
 
 				listaAmicizia2.get(0).setAmiciziaAccettata(false);
 				listaAmicizia2.get(0).setAmiciziaRifiutata(false);
@@ -230,14 +278,14 @@ public @Stateless(name = "GestioneUtenti") class GestioneUtenti implements
 		}
 	}
 
-	public void accettaAmicizia(int idUtente1, int idUtente2)
+	public void accettaAmicizia(int idUtenteCliente, int idUtenteFornitore)
 			throws AmiciziaException {
 
 		Query query2 = entityManager
-				.createQuery("FROM Amicizia a WHERE (utente1_idUtente=?2 AND utente2_idUtente=?1)");
-		query2.setParameter(1, idUtente1);
+				.createQuery("FROM Amicizia a WHERE (utenteCliente_idUtente=?2 AND utenteFornitore_idUtente=?1)");
+		query2.setParameter(1, idUtenteCliente);
 
-		query2.setParameter(2, idUtente2);
+		query2.setParameter(2, idUtenteFornitore);
 		List<Amicizia> listaAmicizia2 = query2.getResultList();
 
 		if (query2.getResultList().isEmpty()) {
@@ -253,14 +301,14 @@ public @Stateless(name = "GestioneUtenti") class GestioneUtenti implements
 		entityManager.merge(listaAmicizia2.get(0));
 	}
 
-	public void eliminaAmicizia(int idUtente1, int idUtente2)
+	public void eliminaAmicizia(int idUtenteCliente, int idUtenteFornitore)
 			throws AmiciziaException {
 
 		Query query2 = entityManager
-				.createQuery("FROM Amicizia a WHERE (utente1_idUtente=?2 AND utente2_idUtente=?1)");
+				.createQuery("FROM Amicizia a WHERE (utenteCliente_idUtente=?2 AND utenteFornitore_idUtente=?1)");
 
-		query2.setParameter(1, idUtente1);
-		query2.setParameter(2, idUtente2);
+		query2.setParameter(1, idUtenteCliente);
+		query2.setParameter(2, idUtenteFornitore);
 
 		List<Amicizia> listaAmicizia2 = query2.getResultList();
 
@@ -360,5 +408,54 @@ public @Stateless(name = "GestioneUtenti") class GestioneUtenti implements
 
 		entityManager.merge(utente);
 
+	}
+
+	public int aggiungiFollower(int idUtente, int idUtenteFollower)
+			throws AmiciziaException {
+
+		if (idUtente == idUtenteFollower)
+			throw new AmiciziaException("Non puoi essere amico di te stesso");
+
+		Random random = new Random();
+		Follower follower = null;
+		Follower followerEsistenteConQuellId = null;
+		int idFollower;
+		do {
+			idFollower = 1 + random.nextInt(1000000);
+			followerEsistenteConQuellId = entityManager.find(Follower.class,
+					idFollower);
+			if (followerEsistenteConQuellId == null) { // se non esiste gia'  un
+														// follower con quell'id
+				Utente utente = entityManager.find(Utente.class, idUtente);
+				Utente utenteFollower = entityManager.find(Utente.class,
+						idUtenteFollower);
+				follower = new Follower(idFollower, utente, utenteFollower,
+						false);
+			} else
+				throw new AmiciziaException("Errore aggiunta follower.");
+
+		} while (followerEsistenteConQuellId != null);
+		entityManager.persist(follower);
+		return idFollower;
+	}
+
+	public void setPreferito(int idFollower) {
+		Follower follower = entityManager.find(Follower.class, idFollower);
+		follower.setPreferito(true);
+
+		entityManager.merge(follower);
+	}
+
+	public void rimuoviPreferito(int idFollower) {
+		Follower follower = entityManager.find(Follower.class, idFollower);
+		follower.setPreferito(false);
+
+		entityManager.merge(follower);
+	}
+
+	public void eliminaFollower(int idFollower) {
+		Follower follower = entityManager.find(Follower.class, idFollower);
+
+		entityManager.remove(follower);
 	}
 }

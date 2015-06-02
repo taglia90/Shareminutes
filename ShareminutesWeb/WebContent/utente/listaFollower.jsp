@@ -1,6 +1,8 @@
 <%@ page import="util.LoginToken"%>
 <%@ page import="util.LoginToken.TipoAccesso"%>
+<%@ page import="entity.Utente"%>
 <%@ page import="entity.Abilita"%>
+<%@ page import="entity.Follower"%>
 <%@ page import="java.util.List"%>
 
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
@@ -8,8 +10,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="en">
 <head>
-<title>SWIMv2 - Clienti &amp; fornitori</title>
-<meta name="description" content="Lista Abilità" />
+<title>Shareminutes - Follower</title>
+<meta name="description" content="Lista Amici" />
 <meta charset="utf-8" />
 <link rel="stylesheet" href="css/reset.css" type="text/css" media="all" />
 <link rel="stylesheet" href="css/layout.css" type="text/css" media="all" />
@@ -68,10 +70,10 @@
 								href="GestioneAbilitaServlet?to=redirectToPaginaListaAbilitaUser">Attività</a></li>
 							<li><a
 								href="GestioneRichiesteServlet?to=redirectToPaginaRichieste">Messaggi</a></li>
-							<li class="current"><a
+							<li><a
 								href="GestionePagineServlet?to=redirectToClientiEFornitori">Clienti
 									&amp; fornitori</a></li>
-							<li><a
+							<li class="current"><a
 								href="GestioneAmicizieServlet?to=redirectToPaginaAmicizie">Followers</a></li>
 							<li><a href="GestionePagineServlet?to=redirectToPreferiti">I
 									miei preferiti</a></li>
@@ -131,12 +133,97 @@
 						session.removeAttribute("Successo");
 						}
 					%>
+
+					<%--
+						List<Utente> listaAmicizieDaAccettare = (List<Utente>) session
+								.getAttribute("listaAmiciInSospeso");
+						if (listaAmicizieDaAccettare != null
+								&& listaAmicizieDaAccettare.size() != 0) {
+					--%>
+
+					<!-- 
 					<br />
-					<h2>Attività</h2>
+					<h2>Amicicizie da accettare:</h2>
+					<table class="zebra-striped">
+						<thead>
+							<tr>
+								<th>Foto</th>
+								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+								<th>Username</th>
+								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+								<th>Nome</th>
+								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+								<th>Cognome</th>
+								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+								<th></th>
+								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							<%--
+								for (Utente utente : listaAmicizieDaAccettare) {
+							%>
+							<tr>
+								<td align="center"><img
+									src="GestioneUtentiServlet?to=getFotoProfilo&username=<%=utente.getUsername()%>"
+									height="80" alt="Foto Profilo" /></td>
+								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+								<td><%--=utente.getUsername()%></td>
+								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+								<td><%--=utente.getNome()%></td>
+								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+								<td><%--=utente.getCognome()%></td>
+								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+
+								<td><a
+									href="GestioneAmicizieServlet?to=valutaRichiestaDiAmicizia&usernameUtenteAmico=<%--=utente.getUsername()%>&isApprovata=true">Accetta</a></td>
+								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+								<td><a
+									href="GestioneAmicizieServlet?to=valutaRichiestaDiAmicizia&usernameUtenteAmico=<%--=utente.getUsername()%>&isApprovata=false">Rifiuta</a></td>
+							</tr>
+							<tr>
+								<td>&nbsp;</td>
+							</tr>
+							<%--
+								}
+							%>
+						</tbody>
+					</table>
+					<br /> <br />
+					
+					
+					<%--
+						}
+					--%>
+-->
+
 					<%
-						List<Abilita> listaAbilita = (List<Abilita>) session
-								.getAttribute("listaAbilita");
-						if (listaAbilita != null && listaAbilita.size() != 0) {
+						if ((Boolean) session.getAttribute("soloPreferiti") == false) {
+					%>
+
+					<div class="clearfix">
+						<a
+							href="GestioneAmicizieServlet?to=redirectToPaginaFollowerPreferiti"
+							class="btn">Visualizza solo i preferiti</a> <br /> <br />
+					</div>
+					<%
+						} else {
+					%>
+					<div class="clearfix">
+						<a href="GestioneAmicizieServlet?to=redirectToPaginaFollower"
+							class="btn">Visualizza tutti</a> <br /> <br />
+					</div>
+					<%
+						}
+					%>
+
+					<h2>Ecco i tuoi follower:</h2>
+					<%
+						List<Follower> listaFollower = (List<Follower>) session
+								.getAttribute("listaFollower");
+						//System.out.println("listamici"+listaAmici);
+						if (listaFollower != null && listaFollower.size() != 0) {
 					%>
 					<table class="zebra-striped">
 						<thead>
@@ -145,51 +232,99 @@
 								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 								<th>Nome</th>
 								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-								<th>Descrizione</th>
+								<th>Cognome</th>
 								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-								<th>Modifica</th>
+								<th>Feedback</th>
+								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+								<th>Attività 1</th>
+								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+								<th>Attività 2</th>
+								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+								<th>Preferiti</th>
 								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 								<th>Elimina</th>
 							</tr>
 						</thead>
 						<tbody>
 							<%
-								for (Abilita abilita : listaAbilita) {
+								Utente utente;
+									for (Follower follower : listaFollower) {
+										utente = follower.getUtenteSeguito();
 							%>
+
 							<tr>
-								<td><img
-									src="GestioneAbilitaServlet?to=getFotoAbilita&idAbilita=<%=abilita.getIdAbilita()%>"
-									height="200" alt="Foto Attività" /></td>
+								<td align="center"><img
+									src="GestioneUtentiServlet?to=getFotoProfilo&idUtente=<%=utente.getIdUtente()%>"
+									height="80" alt="Foto Profilo" /></td>
 								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-								<td><%=abilita.getNomeAbilita()%></td>
+								<td><%=utente.getNome()%></td>
 								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-								<td><%=abilita.getDescrizioneAbilita()%></td>
-								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-								<td><a
-									href="GestioneAbilitaServlet?to=redirectToPaginaModificaAbilita&idAbilita=<%=abilita.getIdAbilita()%>">Modifica</a></td>
+								<td><%=utente.getCognome()%></td>
 								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
 								<td><a
-									href="GestioneAbilitaServlet?to=eliminaAbilita&idAbilita=<%=abilita.getIdAbilita()%>">Elimina</a></td>
+									href="GestioneFeedbackServlet?to=redirectToPaginaListaFeedback&idUtente=<%=utente.getIdUtente()%>">Vedi
+										feedback</a></td>
+								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+								<td>
+									<%
+										List<Abilita> listaAbilita = utente.getAbilita();
+												if (listaAbilita.size() > 0) {
+									%><a
+									href="GestioneAbilitaServlet?to=redirectToPaginaProfiloAbilita&idAbilita=<%=listaAbilita.get(0).getIdAbilita()%>"><%=listaAbilita.get(0).getNomeAbilita()%>
+								</a> <%
+ 	}
+ %>
+								</td>
+								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+								<td>
+									<%
+										if (listaAbilita.size() > 1) {
+									%><a
+									href="GestioneAbilitaServlet?to=redirectToPaginaProfiloAbilita&idAbilita=<%=listaAbilita.get(1).getIdAbilita()%>"><%=listaAbilita.get(1).getNomeAbilita()%>
+								</a> <%
+ 	}
+ %>
+								</td>
+								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+								<td>
+									<%
+										if (follower.isPreferito() == false) {
+									%><a
+									href="GestioneAmicizieServlet?to=aggiungiFollowerAPreferiti&idFollower=<%=follower.getIdFollower()%>">Aggiungi
+										a preferiti</a> <%
+ 	} else {
+ %><a
+									href="GestioneAmicizieServlet?to=rimuoviFollowerDaPreferiti&idFollower=<%=follower.getIdFollower()%>">Togli
+										dai preferiti</a>
+									<%
+										}
+									%>
+								</td>
+								<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+								<th><a
+									href="GestioneAmicizieServlet?to=eliminaFollower&idFollower=<%=follower.getIdFollower()%>">Elimina
+										Follower</a></th>
+							</tr>
+							<tr>
+								<td>&nbsp;</td>
 							</tr>
 							<%
 								}
 							%>
 						</tbody>
+
 					</table>
+
 					<%
 						} else {
 					%>
-					<strong>Non hai ancora selezionato nessuna abilità.</strong>
+					<strong>Non hai amici.</strong>
 					<%
 						}
 					%>
-					<br /> <br /> <a
-						href="GestioneAbilitaServlet?to=redirectToPaginaCreazioneAbilita">Proponi
-						una nuova abilità</a> <br /> <br />
-					<!-- <a
-						href="GestioneAbilitaServlet?to=redirectToPaginaAggiungiAbilitaUtente">Aggiungi
-						o elimina le tue abilità.</a>-->
 				</div>
+
+
 				</section>
 				<!-- aside -->
 				<aside>

@@ -16,8 +16,8 @@ import javax.persistence.Table;
 @Table(name = "Amicizia")
 public class Amicizia implements Serializable {
 	private int idAmicizia;
-	private Utente utente1;
-	private Utente utente2;
+	private Utente utenteCliente;
+	private Utente utenteFornitore;
 	private boolean isAmiciziaAccettata;
 	private boolean isAmiciziaRifiutata;
 
@@ -25,11 +25,12 @@ public class Amicizia implements Serializable {
 		super();
 	}
 
-	public Amicizia(int id, Utente user1, Utente user2, boolean amiciziaAcc) {
+	public Amicizia(int id, Utente userCliente, Utente userFornitore,
+			boolean amiciziaAcc) {
 		super();
 		setIdAmicizia(id);
-		setUtente1(user1);
-		setUtente2(user2);
+		setUtenteCliente(userCliente);
+		setUtenteFornitore(userFornitore);
 		setAmiciziaAccettata(amiciziaAcc);
 		setAmiciziaRifiutata(false);
 	}
@@ -45,23 +46,23 @@ public class Amicizia implements Serializable {
 	}
 
 	@ManyToOne(optional = false)
-	@PrimaryKeyJoinColumn(name = "utente1", referencedColumnName = "idUtente")
-	public Utente getUtente1() {
-		return utente1;
+	@PrimaryKeyJoinColumn(name = "utenteCliente", referencedColumnName = "idUtente")
+	public Utente getUtenteCliente() {
+		return utenteCliente;
 	}
 
-	public void setUtente1(Utente user1) {
-		this.utente1 = user1;
+	public void setUtenteCliente(Utente userCliente) {
+		this.utenteCliente = userCliente;
 	}
 
 	@ManyToOne(optional = false)
-	@PrimaryKeyJoinColumn(name = "utente2", referencedColumnName = "idUtente")
-	public Utente getUtente2() {
-		return utente2;
+	@PrimaryKeyJoinColumn(name = "utenteFornitore", referencedColumnName = "idUtente")
+	public Utente getUtenteFornitore() {
+		return utenteFornitore;
 	}
 
-	public void setUtente2(Utente user2) {
-		this.utente2 = user2;
+	public void setUtenteFornitore(Utente userFornitore) {
+		this.utenteFornitore = userFornitore;
 	}
 
 	@Column(name = "isAmiciziaAccettata")

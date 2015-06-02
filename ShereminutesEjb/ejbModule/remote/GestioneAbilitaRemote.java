@@ -12,11 +12,11 @@ public interface GestioneAbilitaRemote {
 
 	public int creaAbilita(String nomeAbilita, String descrizioneAbilita,
 			boolean isApprovata, byte[] foto, int minutiNecessari, int tariffa,
-			int minuti, String cittaDoveOffreServizio) throws AbilitaException;
+			int minuti, String cittaDoveOffreServizio, String disponibilita) throws AbilitaException;
 
 	public void modificaAbilita(int idAbilita, String nomeAbilita,
 			String descrizioneAbilita, byte[] foto, int minutiNecessari,
-			int tariffa, int minuti, String cittaDoveOffreServizio)
+			int tariffa, int minuti, String cittaDoveOffreServizio, String disponibilita)
 			throws AbilitaException;
 
 	public void approvaAbilita(int idAbilita) throws AbilitaException;
