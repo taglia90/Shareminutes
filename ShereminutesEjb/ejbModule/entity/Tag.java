@@ -2,10 +2,13 @@ package entity;
 
 import java.io.Serializable;
 
+import javax.context.ApplicationScoped;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
@@ -22,6 +25,8 @@ public class Tag implements Serializable {
 		super();
 	}
 
+
+	
 	public Tag(int id, String stringaTag, Abilita abilita) {
 		super();
 		setIdTag(id);

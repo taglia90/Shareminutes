@@ -8,7 +8,7 @@
 
 <html lang="en">
 <head>
-<title>SWIMv2</title>
+<title>Shareminutes</title>
 <meta name="description" content="SWIMv2" />
 <meta charset="utf-8" />
 <link rel="stylesheet" href="css/reset.css" type="text/css" media="all" />
@@ -213,26 +213,24 @@
 						<div class="clearfix">
 							<label>Età</label>
 							<%
-								String eta = "";
+								int eta=0;
 								if (utente.getEta() != null)
-									eta = utente.getEta().toString();
+									eta = Integer.parseInt(utente.getEta());
 							%>
 							<div class="input">
 								<select name="eta">
-									<option value="18">18</option>
-									<option value="19">19</option>
-									<option value="20">20</option>
-									<option value="21">21</option>
-									<option value="22">22</option>
-									<option value="23">23</option>
-									<option value="24">24</option>
-									<option value="25">25</option>
-									<option value="26">26</option>
-									<option value="27">27</option>
-									<option value="28">28</option>
-									<option value="29">29</option>
-									<option value="30">30</option>
-									<option value="31">31</option>
+									<%
+										String codice = "";
+										for (int i = 18; i < 100; i++) {
+											codice += "<option value=\"" + i + "\" ";
+											if (eta == i) {
+												codice += "selected=\"selected\"";
+											}
+											codice += ">" + i + "</option>";
+										}
+									%>
+									<%=codice%>
+									<!-- <option value="0">0</option>-->
 								</select>
 							</div>
 						</div>

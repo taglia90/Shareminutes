@@ -7,8 +7,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="en">
 <head>
-<title>SWIMv2</title>
-<meta name="description" content="SWIMv2" />
+<title>Shareminutes</title>
+<meta name="description" content="Shareminutes" />
 <meta charset="utf-8" />
 <link rel="stylesheet" href="css/reset.css" type="text/css" media="all" />
 <link rel="stylesheet" href="css/layout.css" type="text/css" media="all" />

@@ -23,25 +23,25 @@
 <script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="js/script.js"></script>
 <link rel="stylesheet"
-	href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-	<script src="//code.jquery.com/jquery-1.10.2.js"></script>
-	<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-	<script type="text/javascript">
-		$(function() {
-			$("#datepicker").datepicker();
-			//window.location.reload();
-			//document.getElementById("orario").style.display = "none";
-		});
-	</script>
+	href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css" />
+<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<script type="text/javascript">
+	$(function() {
+		$("#datepicker").datepicker();
+		//window.location.reload();
+		//document.getElementById("orario").style.display = "none";
+	});
+</script>
 
-	<!--[if lt IE 7]>
+<!--[if lt IE 7]>
 	<link rel="stylesheet" href="css/ie6.css" type="text/css" media="screen">
 	<script type="text/javascript" src="js/ie_png.js"></script>
 	<script type="text/javascript">
 		ie_png.fix('.png');
 	</script>
 <![endif]-->
-	<!--[if lt IE 9]>
+<!--[if lt IE 9]>
 	<script type="text/javascript" src="js/html5.js"></script>
 <![endif]-->
 </head>

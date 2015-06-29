@@ -8,14 +8,25 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="en">
 <head>
-<title>SWIMv2 - Ricerca</title>
+<title>Shareminutes - Ricerca</title>
 <meta name="description" content="Ricerca" />
-<meta charset="utf-8" />
 <link rel="stylesheet" href="css/reset.css" type="text/css" media="all" />
 <link rel="stylesheet" href="css/layout.css" type="text/css" media="all" />
 <link rel="stylesheet" href="css/style.css" type="text/css" media="all" />
 <script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="js/script.js"></script>
+<link rel="stylesheet"
+	href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css" />
+<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<script type="text/javascript">
+	$(function() {
+		$("#datepicker").datepicker();
+		//window.location.reload();
+		//document.getElementById("orario").style.display = "none";
+	});
+</script>
+
 <!--[if lt IE 7]>
 	<link rel="stylesheet" href="css/ie6.css" type="text/css" media="screen">
 	<script type="text/javascript" src="js/ie_png.js"></script>
@@ -157,15 +168,37 @@
 					<form enctype="multipart/form-data"
 						action="GestioneRicercheServlet?to=ricercaTag" method="post">
 						<div class="clearfix">
-							<label>Inserisci un'attività, un tag, una città (o parte
-								di essi) per effettuare la ricerca.</label>
+							<label>Inserisci un'attività, un tag (o parte di essi).</label>
 							<div class="input">
 								<input type="text" name="stringa" />
 							</div>
+							<br /> <label>Inserisci una città (o parte di essa) </label>
+							<div class="input">
+								<input type="text" name="citta" />
+							</div>
+							<br /> <label>Seleziona una data:</label>
+							<div class="input">
+								<input type="text" id="datepicker" name="data" />
+							</div>
+							<br /> <label>Seleziona un orario:</label>
+							<div class="input">
+								<select name="disponibilita">
+									<%
+										String orario = "";
+										for (int i = 0; i < 24; i++) {
+											orario += "<option value=\"" + i + "\" >" + i + "</option>";
+										}
+									%>
+									<%=orario%>
+									<!-- <option value="0">0</option>-->
+								</select>
+							</div>
+
+
 						</div>
 						<br /> <br /> <br /> <br />
 						<div class="actions">
-							<button class="btn primary" type="submit">Conferma</button>
+							<button class="btn primary" type="submit">Cerca</button>
 							<a href="GestioneUtentiServlet?to=redirectToPaginaProfilo"
 								class="btn">Annulla</a>
 						</div>

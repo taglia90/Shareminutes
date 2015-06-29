@@ -1,5 +1,6 @@
 package remote;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.ejb.Remote;
@@ -22,6 +23,7 @@ public interface GestioneTagRemote {
 
 	public List<Tag> getListaTagDiAbilita(int idAbilita);
 
-	public List<Abilita> ricercaTag(String stringaDiRicerca) throws TagException;
+	public List<Abilita> ricercaTag(String stringaDiRicerca, String citta,
+			String disponibilita, Date data) throws TagException;
 
 }

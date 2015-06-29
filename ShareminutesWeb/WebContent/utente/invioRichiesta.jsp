@@ -199,9 +199,6 @@
 						%>
 					</div>
 
-					<footer>
-					<p>&copy; 2012 Politecnico di Milano</p>
-					</footer>
 				</div>
 
 

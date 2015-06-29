@@ -1,7 +1,11 @@
 package control;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.naming.Context;
@@ -18,6 +22,7 @@ import remote.GestioneUtentiRemote;
 import util.LoginToken;
 
 import com.oreilly.servlet.MultipartRequest;
+import org.hibernate.SQLQuery;
 
 import entity.Abilita;
 import entity.Tag;
@@ -279,19 +284,41 @@ public class GestioneRicercheServlet extends Servlet {
 			Object ref1 = jndiContext.lookup("GestioneTag/remote");
 			GestioneTagRemote gestioneTagRemote = (GestioneTagRemote) PortableRemoteObject
 					.narrow(ref1, GestioneTagRemote.class);
-	/*		Object ref2 = jndiContext.lookup("GestioneAbilita/remote");
-			GestioneAbilitaRemote gestioneAbilitaRemote = (GestioneAbilitaRemote) PortableRemoteObject
-					.narrow(ref2, GestioneAbilitaRemote.class);
-*/
+			/*
+			 * Object ref2 = jndiContext.lookup("GestioneAbilita/remote");
+			 * GestioneAbilitaRemote gestioneAbilitaRemote =
+			 * (GestioneAbilitaRemote) PortableRemoteObject .narrow(ref2,
+			 * GestioneAbilitaRemote.class);
+			 */
 			MultipartRequest mrequest = new MultipartRequest(request, "./");
-/*			LoginToken tok = (LoginToken) session.getAttribute("LoginToken");
-
-			int idUtente = tok.getIdUtente();*/
+			/*
+			 * LoginToken tok = (LoginToken) session.getAttribute("LoginToken");
+			 * int idUtente = tok.getIdUtente();
+			 */
 
 			String stringa = mrequest.getParameter("stringa");
+			String citta = mrequest.getParameter("citta");
+			String disponibilita = mrequest.getParameter("disponibilita");
 
-			
-			List<Abilita> listaAbilita=gestioneTagRemote.ricercaTag(stringa);
+			Date data;
+			if (mrequest.getParameter("data") != null) {
+				String stringaData = mrequest.getParameter("data");
+				SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+				data = formatter.parse(stringaData);
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(data);
+				int giorno = cal.get(Calendar.DAY_OF_WEEK);
+				String[] valore = { "DO", "LU", "MA", "ME", "GI", "VE", "SA" };
+				disponibilita = valore[giorno] + disponibilita;
+
+			} else {
+				data = null;
+				disponibilita = "";
+			}
+
+			// session.createSqlQuery("");
+			List<Abilita> listaAbilita = gestioneTagRemote.ricercaTag(stringa,
+					citta, disponibilita, data);
 			session.setAttribute("listaAbilita", listaAbilita);
 
 			redirect("utente/risultatoRicerca.jsp", request, response);
@@ -301,6 +328,8 @@ public class GestioneRicercheServlet extends Servlet {
 		} catch (NamingException e) {
 			e.printStackTrace();
 		} catch (TagException e) {
+			e.printStackTrace();
+		} catch (ParseException e) {
 			e.printStackTrace();
 		}
 	}
