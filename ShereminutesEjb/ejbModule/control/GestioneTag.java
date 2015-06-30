@@ -179,14 +179,14 @@ public @Stateless(name = "GestioneTag") class GestioneTag implements
 		// stringBuilder.append(" AND idAbilita IN (SELECT t1.abilita FROM entity.Tag t1 WHERE stringaTag LIKE '%sinapps%')");
 		// stringBuilder.append(" AND idAbilita IN (SELECT t2.abilita FROM entity.Tag t2 WHERE stringaTag LIKE '%apps%')");
 		stringBuilder
-				.append(" AND idAbilita IN (SELECT a1.idAbilita FROM entity.Abilita a1 WHERE cittaDoveOffreServizio=?citta)");
+				.append(" AND idAbilita IN (SELECT a1.idAbilita FROM entity.Abilita a1 WHERE cittaDoveOffreServizio = :citta)");
 		stringBuilder
-				.append(" AND idAbilita IN (SELECT a2.idAbilita FROM entity.Abilita a2 WHERE disponibilita LIKE ?disp)");
+				.append(" AND idAbilita IN (SELECT a2.idAbilita FROM entity.Abilita a2 WHERE disponibilita LIKE :disp)");
 		stringBuilder.append(" AND idAbilita NOT IN ");
 		stringBuilder
-				.append(" (SELECT a3.idAbilita FROM entity.Abilita a3 WHERE idAbilita IN (SELECT p0.abilita FROM entity.Prenotazione p0 WHERE dataPrenotazione=?data)");
+				.append(" (SELECT a3.idAbilita FROM entity.Abilita a3 WHERE idAbilita IN (SELECT p0.abilita FROM entity.Prenotazione p0 WHERE dataPrenotazione = :data)");
 		stringBuilder
-				.append(" AND idAbilita IN (SELECT p1.abilita FROM entity.Prenotazione p1 WHERE orarioPrenotato LIKE ?orario)) ");
+				.append(" AND idAbilita IN (SELECT p1.abilita FROM entity.Prenotazione p1 WHERE orarioPrenotato LIKE :orario)) ");
 		stringBuilder.append(" GROUP BY idAbilita");
 
 		Query query = entityManager.createQuery(stringBuilder.toString());
