@@ -61,14 +61,13 @@
 		<div class="inner">
 			<header>
 			<h1>
-				<a href="index.html" id="logo">PIU' VALORE AL TUO TEMPO</a>
+				<a href="index.html" id="logo">Più valore al tuo tempo</a>
 			</h1>
-		<div class="sottotitoloHome">
-			<p>SOTTOTITOLO SHAREMINUTES HOME</p>
-			</div>
+			<hr />
+			<p>Sottotitolo shareminutes</p>
 			</header>
-			<div class="ricercaHome"> <input class="inputHome" type="text" /> <a href="#banner"
-				class="bottone">SEARCH</a> </div>
+			<footer> <input type="text" /> <a href="#banner"
+				class="button circled scrolly">Search</a> </footer>
 		</div>
 
 		<%
@@ -77,27 +76,26 @@
 		<!-- Nav -->
 		<nav id="nav">
 		<ul>
-			<li><a href="#"><div class="logoHeader"></div></a></li>
-			<li><a class="primoMenu" href="GestionePagineServlet?to=redirectToPaginaCommunity">COMMUNITY</a></li>
-			<li><a href="GestionePagineServlet?to=redirectToPaginaSell">SELL</a></li>
-			<li><a href="GestionePagineServlet?to=redirectToPaginaBuy">BUY</a></li>
-		
+			<li><a href="#">Logo</a></li>
+			<li><a href="GestionePagineServlet?to=redirectToPaginaCommunity">Community</a></li>
+			<li><a href="GestionePagineServlet?to=redirectToPaginaSell">Sell</a></li>
+			<li><a href="GestionePagineServlet?to=redirectToPaginaBuy">Buy</a></li>
+
 			<%
 				if (tok == null) {
 			%>
-		
 			<li><a
-				class="searchHeader" href="GestioneRicercheServlet?to=redirectToPaginaRicercaUtenteNonLoggato">SEARCH</a></li>
-			<li><a href="GestionePagineServlet?to=redirectToLogin">LOGIN
-			</a></li>
+				href="GestioneRicercheServlet?to=redirectToPaginaRicercaUtenteNonLoggato">Search</a></li>
+			<li><a href="GestionePagineServlet?to=redirectToLogin">Sign
+					in</a></li>
 			<li><a
-				href="RegistrazioneServlet?to=redirectToPaginaRegistrazione">SIGN
-					UP</a></li>
+				href="RegistrazioneServlet?to=redirectToPaginaRegistrazione">Sign
+					up</a></li>
 			<%
 				} else {
 			%>
-			<li><div class="searchHeader"><a href="GestioneRicercheServlet?to=redirectToPaginaRicerca">SEARCH</a></div></li>
-			<li><a href="#">PROFILE</a>
+			<li><a href="GestioneRicercheServlet?to=redirectToPaginaRicerca">Search</a></li>
+			<li><a href="#">Profile</a>
 				<ul>
 					<li><a
 						href="GestionePagineServlet?to=redirectToGestioneOrdini">Gestione
@@ -133,7 +131,7 @@
 		<%
 			if (tok != null && utente.getIdUtente() == tok.getIdUtente()) {
 		%>
-		<nav class="secondoMenu">
+		<nav>
 		<ul>
 			<li class="current"><a href="#">Profilo</a></li>
 			<li><a

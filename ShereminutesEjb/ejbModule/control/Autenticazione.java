@@ -64,4 +64,20 @@ public @Stateless(name = "Autenticazione") class Autenticazione implements
 		throw new LoginException("Email '" + email + "' non trovato");
 	}
 
+	public Utente getUtente(String email) {
+		Query query = entityManager
+				.createQuery("FROM Utente WHERE email=:email");
+		query.setParameter("email", email.toLowerCase());
+		return (Utente) query.getSingleResult();
+	}
+
+	public void inserisciCodiceConferma(int idUtente, int codice) {
+		Query query = entityManager
+				.createQuery("FROM Utente WHERE idUtente=?1");
+		query.setParameter(1, idUtente);
+		Utente u = (Utente) query.getSingleResult();
+		u.setCodiceConferma(codice);
+		entityManager.merge(u);
+	}
+
 }

@@ -2,6 +2,9 @@ package control;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.List;
+import java.util.Random;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
@@ -13,12 +16,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import remote.GestioneAbilitaRemote;
 import remote.RegistrazioneRemote;
 import util.GetBytesFromFile;
 import util.Mailer;
 
 import com.oreilly.servlet.MultipartRequest;
 
+import entity.Abilita;
 import exception.RegistrazioneException;
 import exception.SicurezzaException;
 
@@ -45,6 +50,13 @@ public class RegistrazioneServlet extends Servlet {
 			this.annullaRegistrazioneUtente(request, response);
 		if (to.equals("redirectToIndex"))
 			this.redirectToIndex(request, response);
+		if (to.equals("confermaRegistrazione"))
+			this.confermaRegistrazione(request, response);
+		if (to.equals("modificaPass"))
+			this.modificaPass(request, response);
+		if (to.equals("reimpostaPassword"))
+			this.reimpostaPassword(request, response);
+
 	}
 
 	// //////// REGISTRAZIONE UTENTE
@@ -95,13 +107,21 @@ public class RegistrazioneServlet extends Servlet {
 			 * GetBytesFromFile.getBytesFromFile(foto); }
 			 */
 
-			registrazioneRemote.salvaDatiUtente(email, password,
-					confermaPassword, nome, cognome); // , fotoProfiloBytes);
-			
-			String linkConfermaRegistrazione="";
-			String body = "Ciao, " + nome + " " + cognome + ",\n"+
-			"clicca sul seguente link per confermare la tua registrazione:\n"+
-					linkConfermaRegistrazione;
+			Random random = new Random();
+			int codice = 1 + random.nextInt(1000000);
+
+			int idUtente = registrazioneRemote.salvaDatiUtente(email, password,
+					confermaPassword, nome, cognome, codice); // ,
+																// fotoProfiloBytes);
+			String linkConfermaRegistrazione = "http://www.shareminutes.com/ShareminutesWeb/RegistrazioneServlet?to=confermaRegistrazione&idUtente="
+					+ idUtente + "&codice=" + codice;
+			String body = "Ciao, "
+					+ nome
+					+ " "
+					+ cognome
+					+ ",\n"
+					+ "clicca sul seguente link per confermare la tua registrazione:\n"
+					+ linkConfermaRegistrazione;
 			Mailer mailer = new Mailer();
 			mailer.SendEmail(email, "Registrazione Shareminutes", body);
 			session.setAttribute("Successo",
@@ -124,10 +144,8 @@ public class RegistrazioneServlet extends Servlet {
 		} catch (NamingException e) {
 			e.printStackTrace();
 		} catch (AddressException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -176,4 +194,88 @@ public class RegistrazioneServlet extends Servlet {
 		}
 	}
 
+	private void confermaRegistrazione(HttpServletRequest request,
+			HttpServletResponse response) {
+		HttpSession session = request.getSession();
+		try {
+			Context jndiContext = new javax.naming.InitialContext();
+			Object ref1 = jndiContext.lookup("Registrazione/remote");
+			RegistrazioneRemote registrazioneRemote = (RegistrazioneRemote) PortableRemoteObject
+					.narrow(ref1, RegistrazioneRemote.class);
+
+			int codiceRegistrazione = Integer.parseInt(request
+					.getParameter("codice"));
+			int idUtente = Integer.parseInt(request.getParameter("idUtente"));
+
+			boolean verificato = registrazioneRemote
+					.verificaCodiceRegistrazione(idUtente, codiceRegistrazione);
+
+			if (verificato) {
+				session.setAttribute("Successo", "Account verificato!");
+				redirect("utente/login.jsp", request, response);
+			} else {
+				session.setAttribute(
+						"Errore",
+						"Codice registrazione errato. Provare a effettuare nuovamente la registrazione o contattare gli amministratori del sito.");
+			}
+
+		} catch (NamingException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	private void modificaPass(HttpServletRequest request,
+			HttpServletResponse response) {
+		HttpSession session = request.getSession();
+		try {
+
+			Context jndiContext = new javax.naming.InitialContext();
+			Object ref1 = jndiContext.lookup("Registrazione/remote");
+			RegistrazioneRemote registrazioneRemote = (RegistrazioneRemote) PortableRemoteObject
+					.narrow(ref1, RegistrazioneRemote.class);
+
+			request.setCharacterEncoding("UTF-8");
+			MultipartRequest mrequest = new MultipartRequest(request, "./");
+			String password = mrequest.getParameter("password");
+			String confermaPassword = mrequest.getParameter("confermaPassword");
+
+			int codiceRegistrazione = Integer.parseInt((String)session
+					.getAttribute("codice"));
+			int idUtente = Integer.parseInt((String)session.getAttribute("idUtente"));
+
+			boolean verificato = registrazioneRemote.verificaCodice(idUtente,
+					codiceRegistrazione);
+
+			if (verificato) {
+				registrazioneRemote.modificaPassword(idUtente, password,
+						confermaPassword);
+				session.setAttribute("Successo",
+						"Password reimpostata con successo.");
+				redirect("utente/login.jsp", request, response);
+			} else {
+				session.setAttribute("Errore", "Errore di sicurezza.");
+				redirect("utente/login.jsp", request, response);
+			}
+
+			return;
+		} catch (RegistrazioneException e) {
+			session.setAttribute("Errore", e.toString());
+			redirect("index.jsp", request, response);
+		} catch (NamingException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void reimpostaPassword(HttpServletRequest request,
+			HttpServletResponse response) {
+		HttpSession session = request.getSession();
+		session.setAttribute("codice", request.getParameter("codice"));
+		session.setAttribute("idUtente", request.getParameter("idUtente"));
+		redirect("utente/reimpostaPassword.jsp", request, response);
+	}
 }

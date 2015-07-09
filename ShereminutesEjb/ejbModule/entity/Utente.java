@@ -31,6 +31,8 @@ public class Utente implements Serializable {
 	private String sesso;
 	private int tempoMedioRisposta;
 	private String emailPayPal;
+	private int codiceConferma;
+	private boolean isEmailConfermata;
 
 	private List<Abilita> abilita = new ArrayList<Abilita>();
 
@@ -39,7 +41,7 @@ public class Utente implements Serializable {
 	}
 
 	public Utente(int id, String email, byte[] password, String nome,
-			String cognome, boolean isAdminU) {
+			String cognome, boolean isAdminU, int codice) {
 		super();
 
 		setIdUtente(id);
@@ -49,7 +51,8 @@ public class Utente implements Serializable {
 		setNome(nome);
 		setPassword(password);
 		setEmail(email);
-		
+		setCodiceConferma(codice);
+
 	}
 
 	public Utente(int id, String nome, String cognome, String paese,
@@ -70,7 +73,7 @@ public class Utente implements Serializable {
 		setPosizioneLavorativa(posizioneLavorativa);
 		setHeadline(headline);
 		setBiografia(biografia);
-		
+
 	}
 
 	public Utente(int id, String emailPayPal) {
@@ -106,7 +109,7 @@ public class Utente implements Serializable {
 	public void setAdmin(boolean isAdm) {
 		this.isAdmin = isAdm;
 	}
-	
+
 	@Column(name = "cognome")
 	public String getCognome() {
 		return cognome;
@@ -115,7 +118,7 @@ public class Utente implements Serializable {
 	public void setCognome(String cognome) {
 		this.cognome = cognome;
 	}
-	
+
 	@Lob
 	@Basic(fetch = FetchType.LAZY)
 	@Column(length = 100000, name = "fotoProfilo")
@@ -127,7 +130,7 @@ public class Utente implements Serializable {
 	public void setFotoProfilo(byte[] fotoProfilo) {
 		this.fotoProfilo = fotoProfilo;
 	}
-	
+
 	@Column(name = "nome")
 	public String getNome() {
 		return nome;
@@ -136,7 +139,7 @@ public class Utente implements Serializable {
 	public void setNome(String nome) {
 		this.nome = nome;
 	}
-	
+
 	@Column(name = "password")
 	public byte[] getPassword() {
 		return password;
@@ -154,7 +157,7 @@ public class Utente implements Serializable {
 	public void setBiografia(String biografia) {
 		this.biografia = biografia;
 	}
-	
+
 	@Column(name = "cap")
 	public String getCap() {
 		return cap;
@@ -163,7 +166,7 @@ public class Utente implements Serializable {
 	public void setCap(String cap) {
 		this.cap = cap;
 	}
-	
+
 	@Column(name = "cittaAttuale")
 	public String getCittaAttuale() {
 		return cittaAttuale;
@@ -172,7 +175,7 @@ public class Utente implements Serializable {
 	public void setCittaAttuale(String cittaAttuale) {
 		this.cittaAttuale = cittaAttuale;
 	}
-	
+
 	@Column(name = "dataNascita")
 	public Date getDataNascita() {
 		return dataNascita;
@@ -181,7 +184,7 @@ public class Utente implements Serializable {
 	public void setDataNascita(Date dataNascita) {
 		this.dataNascita = dataNascita;
 	}
-	
+
 	@Column(name = "email", unique = true)
 	public String getEmail() {
 		return email;
@@ -208,7 +211,7 @@ public class Utente implements Serializable {
 	public void setHeadline(String headline) {
 		this.headline = headline;
 	}
-	
+
 	@Column(name = "paese")
 	public String getPaese() {
 		return paese;
@@ -226,6 +229,7 @@ public class Utente implements Serializable {
 	public void setPosizioneLavorativa(String posizioneLavorativa) {
 		this.posizioneLavorativa = posizioneLavorativa;
 	}
+
 	@Column(name = "sesso")
 	public String getSesso() {
 		return sesso;
@@ -251,6 +255,24 @@ public class Utente implements Serializable {
 
 	public void setEmailPayPal(String emailPayPal) {
 		this.emailPayPal = emailPayPal;
+	}
+
+	@Column(name = "codiceConferma")
+	public int getCodiceConferma() {
+		return codiceConferma;
+	}
+
+	public void setCodiceConferma(int codiceConferma) {
+		this.codiceConferma = codiceConferma;
+	}
+
+	@Column(name = "isEmailConfermata")
+	public boolean isEmailConfermata() {
+		return isEmailConfermata;
+	}
+
+	public void setEmailConfermata(boolean isEmailConfermata) {
+		this.isEmailConfermata = isEmailConfermata;
 	}
 
 	@ManyToMany(fetch = FetchType.EAGER)

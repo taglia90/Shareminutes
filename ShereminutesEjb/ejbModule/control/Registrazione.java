@@ -1,5 +1,6 @@
 package control;
 
+import java.util.List;
 import java.util.Random;
 
 import javax.ejb.Stateless;
@@ -23,9 +24,10 @@ public @Stateless(name = "Registrazione") class Registrazione implements
 	private EntityManager entityManager;
 	private Utente utente = null;
 
-	public void salvaDatiUtente(String email, String password,
-			String confermaPassword, String nome, String cognome)// , byte[]
-																	// foto)
+	public int salvaDatiUtente(String email, String password,
+			String confermaPassword, String nome, String cognome, int codice)// ,
+																				// byte[]
+			// foto)
 			throws RegistrazioneException {
 		if (email.equals("") || password.equals("")
 				|| confermaPassword.equals("") || nome.equals("")
@@ -72,7 +74,8 @@ public @Stateless(name = "Registrazione") class Registrazione implements
 			if (utenteEsistenteConQuellId == null) { // se non esiste gia'  un'
 														// utente con quell'id
 				utente = new Utente(idUtente, email.toLowerCase(),
-						MD5Encrypter.encrypt(password), nome, cognome, false); // NB:
+						MD5Encrypter.encrypt(password), nome, cognome, false,
+						codice); // NB:
 				// in
 				// minuscole
 
@@ -80,7 +83,7 @@ public @Stateless(name = "Registrazione") class Registrazione implements
 		} while (utenteEsistenteConQuellId != null);
 
 		entityManager.persist(utente);
-
+		return idUtente;
 	}
 
 	public Utente getUtenteSalvato() {
@@ -91,4 +94,61 @@ public @Stateless(name = "Registrazione") class Registrazione implements
 		this.utente = null;
 	}
 
+	public boolean verificaCodiceRegistrazione(int idUtente,
+			int codiceRegistrazione) {
+		Query query = entityManager
+				.createQuery("FROM Utente WHERE idUtente = ?1 AND codiceConferma = ?2");
+		query.setParameter(1, idUtente);
+		query.setParameter(2, codiceRegistrazione);
+		Utente utente = (Utente) query.getSingleResult();
+		if (utente != null) {
+			utente.setEmailConfermata(true);
+			entityManager.merge(utente);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean verificaCodice(int idUtente, int codice) {
+		Query query = entityManager
+				.createQuery("FROM Utente WHERE idUtente = ?1 AND codiceConferma = ?2");
+		query.setParameter(1, idUtente);
+		query.setParameter(2, codice);
+		Utente utente = (Utente) query.getSingleResult();
+		if (utente != null) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public void modificaPassword(int idUtente, String password,
+			String confermaPassword) throws RegistrazioneException {
+		if (password.equals("") || confermaPassword.equals(""))
+			throw new RegistrazioneException(
+					"Non sono stati compilati tutti i campi!");
+		if (password.length() > 255 || confermaPassword.length() > 255)
+			throw new RegistrazioneException(
+					"Qualcuno dei campi compilati eccede la dimensione massima consentita di 255 caratteri.");
+		if (!(ControlloreStringhe.userOPassUtenteOk(password)))
+			throw new RegistrazioneException(
+					"L'email non è valida o la password non e' compresa tra 6 e 24 caratteri o contiene carattare speciali non accettati.");
+		if (!password.equals(confermaPassword))
+			throw new RegistrazioneException(
+					"Hai inserito due password diverse");
+
+		Query query = entityManager
+				.createQuery("FROM Utente WHERE idUtente=?1");
+		query.setParameter(1, idUtente);
+		Utente u = (Utente) query.getSingleResult();
+		if (u == null)
+			throw new RegistrazioneException("L'utente non esiste.");
+
+		u.setPassword(MD5Encrypter.encrypt(password));
+
+		entityManager.merge(u);
+		return;
+
+	}
 }

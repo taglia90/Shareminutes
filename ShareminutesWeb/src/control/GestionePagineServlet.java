@@ -53,9 +53,6 @@ public class GestionePagineServlet extends Servlet {
 			this.redirectToPreferiti(request, response);
 		if (to.equals("redirectToLogin"))
 			this.redirectToLogin(request, response);
-		if (to.equals("confermaRegistrazione"))
-			this.confermaRegistrazione(request, response);
-
 	}
 
 	private void redirectToIndex(HttpServletRequest request,
@@ -200,11 +197,6 @@ public class GestionePagineServlet extends Servlet {
 		redirect("utente/login.jsp", request, response);
 	}
 
-	private void confermaRegistrazione(HttpServletRequest request,
-			HttpServletResponse response) {
-		
-		
-		//redirect("utente/login.jsp", request, response);
-	}
+	
 
 }

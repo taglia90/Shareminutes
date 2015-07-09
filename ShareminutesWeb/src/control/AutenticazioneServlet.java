@@ -2,7 +2,10 @@ package control;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Random;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.rmi.PortableRemoteObject;
@@ -16,6 +19,7 @@ import remote.AutenticazioneRemote;
 import remote.GestioneAbilitaRemote;
 import remote.GestioneUtentiRemote;
 import util.LoginToken;
+import util.Mailer;
 import util.LoginToken.TipoAccesso;
 import entity.Abilita;
 import entity.Utente;
@@ -39,6 +43,10 @@ public class AutenticazioneServlet extends Servlet {
 			this.logout(request, response);
 		if (to.equals("login"))
 			this.login(request, response);
+		if (to.equals("passwordDimenticata"))
+			this.passwordDimenticata(request, response);
+		if (to.equals("redirectToPasswordDimenticata"))
+			this.redirectToPasswordDimenticata(request, response);
 	}
 
 	// per questioni di sicurezza introduciamo 2 controlli per le 2 categorie di
@@ -104,8 +112,7 @@ public class AutenticazioneServlet extends Servlet {
 			Object ref2 = jndiContext.lookup("GestioneUtenti/remote");
 			GestioneUtentiRemote gestioneUtentiRemote = (GestioneUtentiRemote) PortableRemoteObject
 					.narrow(ref2, GestioneUtentiRemote.class);
-			
-			
+
 			String email = request.getParameter("email");
 			String password = request.getParameter("password");
 
@@ -116,14 +123,20 @@ public class AutenticazioneServlet extends Servlet {
 
 			Utente utente = gestioneUtentiRemote.getUtente(tok.getIdUtente());
 			session.setAttribute("utente", utente);
-			
+
+			if (!utente.isEmailConfermata()) {
+				session.setAttribute(
+						"Errore",
+						"Prima di accedere devi verificare il tuo account tramite il codice inviato via mail.");
+				redirect("utente/login.jsp", request, response);
+				return;
+			}
+
 			if (tok.getRequiredAccess() == TipoAccesso.Amministratore)
 				this.accessoAmministratore(request, response);
 			if (tok.getRequiredAccess() == TipoAccesso.Utente)
 				this.accessoUtente(request, response);
 
-			
-			
 			/*
 			 * Boolean isChecked = false;
 			 * if(request.getParameter("remember_me").toString()=="1"){
@@ -194,6 +207,56 @@ public class AutenticazioneServlet extends Servlet {
 		} catch (NamingException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void redirectToPasswordDimenticata(HttpServletRequest request,
+			HttpServletResponse response) {
+
+		redirect("utente/passwordDimenticata.jsp", request, response);
+	}
+
+	private void passwordDimenticata(HttpServletRequest request,
+			HttpServletResponse response) {
+
+		HttpSession session = request.getSession();
+		try {
+			Context jndiContext = new javax.naming.InitialContext();
+			Object ref1 = jndiContext.lookup("Autenticazione/remote");
+			AutenticazioneRemote autenticazioneRemote = (AutenticazioneRemote) PortableRemoteObject
+					.narrow(ref1, AutenticazioneRemote.class);
+
+			String email = request.getParameter("email");
+			Utente utente = autenticazioneRemote.getUtente(email);
+
+			if (utente != null) {
+				Random random = new Random();
+				int codice = 1 + random.nextInt(1000000);
+				autenticazioneRemote.inserisciCodiceConferma(
+						utente.getIdUtente(), codice);
+				String linkReimpostaPassword = "http://www.shareminutes.com/ShareminutesWeb/RegistrazioneServlet?to=reimpostaPassword&idUtente="
+						+ utente.getIdUtente() + "&codice=" + codice;
+				String body = "Ciao,\n"
+						+ "è stato richiesto di reimpostare la password del tuo account.\nSe non hai fatto tu qeusta richiesta ignora questa mail, altrimenti clicca sul seguente link per reimpostare la password:\n"
+						+ linkReimpostaPassword;
+				Mailer mailer = new Mailer();
+				mailer.SendEmail(email, "Reimposta password", body);
+
+				session.setAttribute("Successo",
+						"Email inviata all'accunt indicato.");
+			} else {
+				session.setAttribute("Errore",
+						"L'indirizzo mail non è registrato.");
+			}
+
+			redirect("index.jsp", request, response);
+		} catch (NamingException e) {
+			e.printStackTrace();
+		} catch (AddressException e) {
+			e.printStackTrace();
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 }

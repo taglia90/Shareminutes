@@ -36,30 +36,16 @@
 		<aside>
 			<div class="inside">
 				<ul class="insurance">
-					<h3>Autenticazione</h3>
+					<h3>Password dimenticata</h3>
 					<br />
-					<form action="AutenticazioneServlet?to=login" method="post">
+					<form action="AutenticazioneServlet?to=passwordDimenticata" method="post">
 						<div class="clearfix">
 							<input class="input-medium" type="text" placeholder="Email"
 								name="email">
 						</div>
 						<br /> <br />
-						<div class="clearfix">
-							<input class="input-medium" type="password"
-								placeholder="Password" name="password"> <br /> <br />
-						</div>
-						<input type="checkbox" name="remember_me" value="Ricordami">
-						Ricordami <br />
 						<button class="btn small primary" type="submit">Accedi</button>
 					</form>
-					<br />
-					<li><strong><a
-							href="./AutenticazioneServlet?to=redirectToPasswordDimenticata">Password dimenticata</a></strong>
-					</li>
-					<br />
-					<li>oppure <br /> <strong><a
-							href="./RegistrazioneServlet?to=redirectToPaginaRegistrazione">Registrati!</a></strong>
-					</li>
 				</ul>
 			</div>
 		</aside>
