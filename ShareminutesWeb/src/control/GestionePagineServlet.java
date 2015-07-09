@@ -51,6 +51,10 @@ public class GestionePagineServlet extends Servlet {
 			this.redirectToClientiEFornitori(request, response);
 		if (to.equals("redirectToPreferiti"))
 			this.redirectToPreferiti(request, response);
+		if (to.equals("redirectToLogin"))
+			this.redirectToLogin(request, response);
+		if (to.equals("confermaRegistrazione"))
+			this.confermaRegistrazione(request, response);
 
 	}
 
@@ -189,7 +193,18 @@ public class GestionePagineServlet extends Servlet {
 	private void redirectToPreferiti(HttpServletRequest request,
 			HttpServletResponse response) {
 		redirect("utente/preferiti.jsp", request, response);
+	}
 
+	private void redirectToLogin(HttpServletRequest request,
+			HttpServletResponse response) {
+		redirect("utente/login.jsp", request, response);
+	}
+
+	private void confermaRegistrazione(HttpServletRequest request,
+			HttpServletResponse response) {
+		
+		
+		//redirect("utente/login.jsp", request, response);
 	}
 
 }

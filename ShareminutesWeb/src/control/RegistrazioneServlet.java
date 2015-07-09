@@ -3,6 +3,8 @@ package control;
 import java.io.File;
 import java.io.IOException;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.rmi.PortableRemoteObject;
@@ -13,6 +15,7 @@ import javax.servlet.http.HttpSession;
 
 import remote.RegistrazioneRemote;
 import util.GetBytesFromFile;
+import util.Mailer;
 
 import com.oreilly.servlet.MultipartRequest;
 
@@ -94,8 +97,15 @@ public class RegistrazioneServlet extends Servlet {
 
 			registrazioneRemote.salvaDatiUtente(email, password,
 					confermaPassword, nome, cognome); // , fotoProfiloBytes);
+			
+			String linkConfermaRegistrazione="";
+			String body = "Ciao, " + nome + " " + cognome + ",\n"+
+			"clicca sul seguente link per confermare la tua registrazione:\n"+
+					linkConfermaRegistrazione;
+			Mailer mailer = new Mailer();
+			mailer.SendEmail(email, "Registrazione Shareminutes", body);
 			session.setAttribute("Successo",
-					"Registrazione avvenuta con successo!");
+					"Registrazione avvenuta con successo, riceverai una mail di conferma!");
 
 			redirect("index.jsp", request, response);
 			return;
@@ -112,6 +122,12 @@ public class RegistrazioneServlet extends Servlet {
 			redirect("RegistrazioneServlet?to=redirectToPaginaRegistrazione",
 					request, response);
 		} catch (NamingException e) {
+			e.printStackTrace();
+		} catch (AddressException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
