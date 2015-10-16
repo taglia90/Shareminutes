@@ -27,4 +27,8 @@ public interface GestioneRichiesteRemote {
 
 	public Richiesta getRichiesta(int idRichiesta);
 
+	public boolean ciSonoMessaggiNonLettiDiUtente(int idUtente);
+
+	public void setRichiestaALetta(int idRichiesta);
+
 }

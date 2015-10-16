@@ -19,4 +19,6 @@ public interface GestioneFeedbackRemote {
 	public List<Feedback> getListaFeedbackCreatiDiUnUtente(int idUtente);
 
 	public Feedback getFeedback(int idFeedback);
+	
+	public int aggiornaMediaFeedbackUtente(int idUtente);
 }

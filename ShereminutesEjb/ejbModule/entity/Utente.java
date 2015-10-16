@@ -33,6 +33,7 @@ public class Utente implements Serializable {
 	private String emailPayPal;
 	private int codiceConferma;
 	private boolean isEmailConfermata;
+	private int mediaFeedback;
 
 	private List<Abilita> abilita = new ArrayList<Abilita>();
 
@@ -80,6 +81,12 @@ public class Utente implements Serializable {
 		super();
 		setIdUtente(id);
 		setEmailPayPal(emailPayPal);
+	}
+
+	public Utente(int id, int media) {
+		super();
+		setIdUtente(id);
+		setMediaFeedback(media);
 	}
 
 	@Id
@@ -264,6 +271,15 @@ public class Utente implements Serializable {
 
 	public void setCodiceConferma(int codiceConferma) {
 		this.codiceConferma = codiceConferma;
+	}
+
+	@Column(name = "mediaFeedback")
+	public int getMediaFeedback() {
+		return mediaFeedback;
+	}
+
+	public void setMediaFeedback(int mediaFeedback) {
+		this.mediaFeedback = mediaFeedback;
 	}
 
 	@Column(name = "isEmailConfermata")

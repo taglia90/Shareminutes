@@ -59,7 +59,7 @@ public @Stateless(name = "GestioneRichieste") class GestioneRichieste implements
 				// richiesta con
 				// quell'id
 				richiesta = new Richiesta(idRichiesta, oggettoRichiesta,
-						utenteMittente, utenteDestinatario);
+						utenteMittente, utenteDestinatario, idUtenteMittente);
 
 			}
 		} while (richiestaEsistenteConQuellId != null);
@@ -108,6 +108,7 @@ public @Stateless(name = "GestioneRichieste") class GestioneRichieste implements
 				richiesta.addMessaggio(messaggio);
 			}
 		} while (messaggioEsistenteConQuellId != null);
+		richiesta.setLettoDa(idUtente);
 		entityManager.persist(messaggio);
 		entityManager.merge(richiesta);
 
@@ -147,13 +148,12 @@ public @Stateless(name = "GestioneRichieste") class GestioneRichieste implements
 	 * @see control.ddd#getListaMessaggiDiRichiesta(int)
 	 */
 	public List<Messaggio> getListaMessaggiDiRichiesta(int idRichiesta) {
+		Richiesta r = (Richiesta) entityManager.find(Richiesta.class,
+				idRichiesta);
+		List<Messaggio> listaMessaggiDiRichiesta = r.getListaMessaggi();
+		System.out.println(listaMessaggiDiRichiesta.get(0).getCorpoMessaggio());
 
-		List<Messaggio> ListaMessaggiDiRichiesta = (entityManager.find(
-				Richiesta.class, idRichiesta)).getListaMessaggi();
-		System.out.println(ListaMessaggiDiRichiesta.get(0).getCorpoMessaggio());
-		System.out.println(ListaMessaggiDiRichiesta);
-
-		return ListaMessaggiDiRichiesta;
+		return listaMessaggiDiRichiesta;
 	}
 
 	// @Override
@@ -164,7 +164,31 @@ public @Stateless(name = "GestioneRichieste") class GestioneRichieste implements
 	 */
 	public Richiesta getRichiesta(int idRichiesta) {
 
-		return (Richiesta) entityManager.find(Richiesta.class, idRichiesta);
+		Richiesta r = (Richiesta) entityManager.find(Richiesta.class,
+				idRichiesta);
+		return r;
+	}
+
+	public boolean ciSonoMessaggiNonLettiDiUtente(int idUtente) {
+		Query query = entityManager
+				.createQuery("SELECT COUNT(r) FROM entity.Richiesta r WHERE lettoDa <> ?1 AND lettoDa <> 0 AND "
+						+ "(utenteDestinatario = ?1 OR utenteMittente = ?1)");
+
+		query.setParameter(1, idUtente);
+
+		long numeroMessaggiNonLetti = (long) query.getSingleResult();
+		if (numeroMessaggiNonLetti == 0)
+			return false;
+		return true;
+	}
+
+	public void setRichiestaALetta(int idRichiesta) {
+
+		Richiesta r = (Richiesta) entityManager.find(Richiesta.class,
+				idRichiesta);
+		r.setLettoDa(0);
+		entityManager.merge(r);
+		return;
 	}
 
 }

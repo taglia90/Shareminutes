@@ -9,17 +9,16 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
+//import com.sun.javafx.scene.layout.region.Margins.Converter;
+
 import remote.GestioneUtentiRemote;
 import util.ControlloreStringhe;
 import util.MD5Encrypter;
 import entity.Abilita;
 import entity.Amicizia;
 import entity.Follower;
-import entity.Prenotazione;
 import entity.Utente;
-import exception.AbilitaException;
 import exception.AmiciziaException;
-import exception.RegistrazioneException;
 import exception.UtentiException;
 
 @SuppressWarnings("unchecked")
@@ -457,5 +456,16 @@ public @Stateless(name = "GestioneUtenti") class GestioneUtenti implements
 		Follower follower = entityManager.find(Follower.class, idFollower);
 
 		entityManager.remove(follower);
+	}
+
+	public Long getNumeroDiFollowers(int idUtente) {
+		Query query = entityManager
+				.createQuery("SELECT count(idFollower) as numero FROM Follower WHERE utente_idUtente=?1");
+		query.setParameter(1, idUtente);
+
+		// long count = (long) query.getSingleResult();
+		Long numero = Long.parseLong(query.getSingleResult().toString());
+		return numero;
+
 	}
 }

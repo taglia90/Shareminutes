@@ -25,7 +25,8 @@ public class Prenotazione implements Serializable {
 	private Boolean isAccettataSeller;
 	private Boolean isConfermataBuyer;
 	private Boolean isPagata;
-	private Boolean isFeedbackRilasciato;
+	private Boolean isFeedbackRilasciatoSeller;
+	private Boolean isFeedbackRilasciatoBuyer;
 	private Boolean isRifiutata;
 	private Utente utenteBuyer;
 	private Utente utenteSeller;
@@ -41,8 +42,10 @@ public class Prenotazione implements Serializable {
 	public Prenotazione(int id, Date data, String orarioPrenotato,
 			Utente utenteB, Utente utenteS, Abilita abilita,
 			boolean isAccettataSeller, boolean isConfermataBuyer,
-			boolean isFeedbackRilasciato, boolean isPagata,
-			boolean isRifiutata, LocalDateTime dataInvioPrenotazione) {
+			boolean isPagata, boolean isRifiutata,
+			LocalDateTime dataInvioPrenotazione,
+			boolean isFeedbackRilasciatoSeller,
+			boolean isFeedbackRilasciatoBuyer) {
 		super();
 		setIdPrenotazione(id);
 		setDataPrenotazione(data);
@@ -55,7 +58,8 @@ public class Prenotazione implements Serializable {
 		setAbilita(abilita);
 		setAccettataSeller(isAccettataSeller);
 		setConfermataBuyer(isConfermataBuyer);
-		setFeedbackRilasciato(isFeedbackRilasciato);
+		setFeedbackRilasciatoSeller(isFeedbackRilasciatoSeller);
+		setFeedbackRilasciatoBuyer(isFeedbackRilasciatoBuyer);
 		setPagata(isPagata);
 		setRifiutata(isRifiutata);
 		setDataInvioPrenotazione(dataInvioPrenotazione);
@@ -131,13 +135,22 @@ public class Prenotazione implements Serializable {
 		this.isPagata = isPagata;
 	}
 
-	@Column(name = "isFeedbackRilasciato")
-	public boolean isFeedbackRilasciato() {
-		return isFeedbackRilasciato;
+	@Column(name = "isFeedbackRilasciatoSeller")
+	public boolean isFeedbackRilasciatoSeller() {
+		return isFeedbackRilasciatoSeller;
 	}
 
-	public void setFeedbackRilasciato(boolean isFeedbackRilasciato) {
-		this.isFeedbackRilasciato = isFeedbackRilasciato;
+	public void setFeedbackRilasciatoSeller(boolean isFeedbackRilasciatoSeller) {
+		this.isFeedbackRilasciatoSeller = isFeedbackRilasciatoSeller;
+	}
+
+	@Column(name = "isFeedbackRilasciatoBuyer")
+	public boolean isFeedbackRilasciatoBuyer() {
+		return isFeedbackRilasciatoBuyer;
+	}
+
+	public void setFeedbackRilasciatoBuyer(boolean isFeedbackRilasciatoBuyer) {
+		this.isFeedbackRilasciatoBuyer = isFeedbackRilasciatoBuyer;
 	}
 
 	@Column(name = "isRifiutata")

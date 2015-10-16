@@ -80,4 +80,20 @@ public @Stateless(name = "GestioneFeedback") class GestioneFeedback implements
 		return (Feedback) entityManager.find(Feedback.class, idFeedback);
 	}
 
+	public int aggiornaMediaFeedbackUtente(int idUtente) {
+		List<Feedback> listaFeedback = getListaFeedbackRicevutiDiUnUtente(idUtente);
+		int media = 0;
+		int i = 0;
+		for (i = 0; i < listaFeedback.size(); i++) {
+			media += listaFeedback.get(i).getVotoSintetico();
+		}
+		if (i > 0) {
+			media /= i;
+			Utente u = entityManager.find(Utente.class, idUtente);
+			u.setMediaFeedback(media);
+			entityManager.merge(u);
+			return media;
+		}
+		return 0;
+	}
 }

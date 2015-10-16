@@ -23,7 +23,8 @@ public @Stateless(name = "GestioneAbilita") class GestioneAbilita implements
 
 	public int creaAbilita(String nomeAbilita, String descrizioneAbilita,
 			boolean isApprovata, byte[] foto, int minutiNecessari, int tariffa,
-			int minuti, String cittaDoveOffreServizio, String disponibilita) throws AbilitaException {
+			int minuti, String cittaDoveOffreServizio, String disponibilita)
+			throws AbilitaException {
 		if (nomeAbilita.length() > 255)
 			throw new AbilitaException(
 					"Il nome dell'attivita' eccede la dimensione massima consentita di 255 caratteri");
@@ -73,8 +74,8 @@ public @Stateless(name = "GestioneAbilita") class GestioneAbilita implements
 
 	public void modificaAbilita(int idAbilita, String nomeAbilita,
 			String descrizioneAbilita, byte[] foto, int minutiNecessari,
-			int tariffa, int minuti, String cittaDoveOffreServizio, String disponibilita)
-			throws AbilitaException {
+			int tariffa, int minuti, String cittaDoveOffreServizio,
+			String disponibilita) throws AbilitaException {
 		if (nomeAbilita.length() > 255)
 			throw new AbilitaException(
 					"Il nome dell'attivita' eccede la dimensione massima consentita di 255 caratteri");
@@ -91,10 +92,10 @@ public @Stateless(name = "GestioneAbilita") class GestioneAbilita implements
 
 		Abilita abilitaDaModificare = entityManager.find(Abilita.class,
 				idAbilita);
-		Query query = entityManager
-				.createQuery("FROM Abilita a WHERE nomeAbilita=:nomeAbil AND idAbilita!=:idAbil");
-		query.setParameter("nomeAbil", nomeAbilita);
-		query.setParameter("idAbil", idAbilita);
+		// Query query = entityManager
+		// .createQuery("FROM Abilita a WHERE nomeAbilita=:nomeAbil AND idAbilita!=:idAbil");
+		// query.setParameter("nomeAbil", nomeAbilita);
+		// query.setParameter("idAbil", idAbilita);
 
 		// if (query.getResultList().isEmpty()) { // se non ci sono abilita nel
 		// progetto col nome richiesto
@@ -106,11 +107,35 @@ public @Stateless(name = "GestioneAbilita") class GestioneAbilita implements
 		abilitaDaModificare.setTariffa(tariffa);
 		abilitaDaModificare.setMinuti(minuti);
 		abilitaDaModificare.setCittaDoveOffreServizio(cittaDoveOffreServizio);
-		 abilitaDaModificare.setDisponibilita(disponibilita);
+		abilitaDaModificare.setDisponibilita(disponibilita);
 		entityManager.merge(abilitaDaModificare);
 		// } else
 		// throw new AbilitaException(
 		// "E' gia'  stata definita un'abilita' con quel nome.");
+	}
+
+	public void modificaAbilita(int idAbilita, String nomeAbilita,
+			String descrizioneAbilita) throws AbilitaException {
+		if (nomeAbilita.length() > 255)
+			throw new AbilitaException(
+					"Il nome dell'attivita' eccede la dimensione massima consentita di 255 caratteri");
+		if (!ControlloreStringhe.nomeOggettoOk(nomeAbilita))
+			throw new AbilitaException(
+					"Il nome dell'attivita' deve avere da 1 a 255 caratteri e puo' contenere SOLO lettere, numeri e i caratteri speciali 'space' . _ - che non possono comparire come primo o ultimo carattere");
+
+		if (descrizioneAbilita.length() > 65535)
+			throw new AbilitaException(
+					"La descrizione eccede la dimensione massima consentita di 65535 caratteri");
+		if (!ControlloreStringhe.descrizioneOk(descrizioneAbilita))
+			throw new AbilitaException(
+					"La descrizione deve essere compresa tra 1 e 65535 caratteri e NON puo' contenere i caratteri speciali '<' e '>'");
+
+		Abilita abilitaDaModificare = entityManager.find(Abilita.class,
+				idAbilita);
+
+		abilitaDaModificare.setNomeAbilita(nomeAbilita);
+		abilitaDaModificare.setDescrizioneAbilita(descrizioneAbilita);
+		entityManager.merge(abilitaDaModificare);
 	}
 
 	public void approvaAbilita(int idAbilita) throws AbilitaException {
@@ -127,16 +152,15 @@ public @Stateless(name = "GestioneAbilita") class GestioneAbilita implements
 
 	public void eliminaAbilita(int idAbilita) throws AbilitaException {
 
-		Abilita abilitaDaEliminare = entityManager.find(Abilita.class,
-				idAbilita);
-		if (abilitaDaEliminare == null)
-			throw new AbilitaException("L'abilita' non esiste");
-
 		GestioneTag gt = new GestioneTag();
 		GestionePrenotazioni gp = new GestionePrenotazioni();
 		gt.eliminaTuttiTagDiAbilita(idAbilita);
 		gp.eliminaTuttePrenotazioniDiAbilita(idAbilita);
-		
+
+		Abilita abilitaDaEliminare = entityManager.find(Abilita.class,
+				idAbilita);
+		if (abilitaDaEliminare == null)
+			throw new AbilitaException("L'attività non esiste");
 		entityManager.remove(abilitaDaEliminare);
 	}
 

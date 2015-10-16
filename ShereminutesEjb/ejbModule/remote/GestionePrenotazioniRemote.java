@@ -18,14 +18,16 @@ public interface GestionePrenotazioniRemote {
 	public List<Prenotazione> getListaOrdiniAsABuyer(int idUtenteBuyer);
 
 	public List<Prenotazione> getListaOrdiniAsASeller(int idUtenteSeller);
-	
-	public List<Prenotazione> getListaOrdiniAsABuyerDiUtenteSeller(int idUtenteBuyer, int idUtenteSeller);
 
-	public List<Prenotazione> getListaOrdiniAsASellerDiUtenteBuyer(int idUtenteSeller, int idUtenteBuyer);
+	public List<Prenotazione> getListaOrdiniAsABuyerDiUtenteSeller(
+			int idUtenteBuyer, int idUtenteSeller);
+
+	public List<Prenotazione> getListaOrdiniAsASellerDiUtenteBuyer(
+			int idUtenteSeller, int idUtenteBuyer);
 
 	public Prenotazione getPrenotazione(int idPrenotazione);
 
-	public void valutaPrenotazione(int idPrenotazione)
+	public void valutaPrenotazione(int idPrenotazione, int idUtenteMittente)
 			throws PrenotazioneException;
 
 	public void setAccettataSeller(int idPrenotazione);
@@ -38,8 +40,14 @@ public interface GestionePrenotazioniRemote {
 
 	public List<Prenotazione> getListaPrenotazioniInData(Date data,
 			int idAbilita);
-	
-	public List<Prenotazione> getListaClienti(int idUtente);
-	
-	public List<Prenotazione> getListaFornitori(int idUtente);
+
+	public List<Prenotazione> getListaClienti(int idSeller);
+
+	public List<Prenotazione> getListaFornitori(int idBuyer);
+
+	public List<Prenotazione> getListaClienti(int idSeller, int idBuyer);
+
+	public List<Prenotazione> getListaFornitori(int idBuyer, int idSeller);
+
+	public boolean ciSonoOrdiniNonLettiDiUtente(int idUtente);
 }

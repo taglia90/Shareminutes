@@ -15,6 +15,7 @@ import util.ControlloreStringhe;
 import util.MD5Encrypter;
 import entity.Abilita;
 import entity.Feedback;
+import entity.Landing;
 import entity.Utente;
 import exception.RegistrazioneException;
 
@@ -150,5 +151,48 @@ public @Stateless(name = "Registrazione") class Registrazione implements
 		entityManager.merge(u);
 		return;
 
+	}
+
+	public int salvaDatiLanding(String nome, String email, String nomeAbilita)
+			throws RegistrazioneException {
+		if (email.equals("") || nome.equals(""))
+			throw new RegistrazioneException(
+					"Non sono stati compilati tutti i campi!");
+		if (email.length() > 255 || nome.length() > 255
+				|| nomeAbilita.length() > 255)
+			throw new RegistrazioneException(
+					"Qualcuno dei campi compilati eccede la dimensione massima consentita di 255 caratteri.");
+		if (!(ControlloreStringhe.emailOk(email)))
+			throw new RegistrazioneException(
+					"L'email non è valida o contiene carattare speciali non accettati.");
+		if (!(ControlloreStringhe.nomeOCognomeUtenteOk(nome)))
+			throw new RegistrazioneException(
+					"Il nome e il cognome possono contenere SOLO lettere e lo spazio che non puo' comparire come primo o ultimo carattere.");
+
+		Query query = entityManager
+				.createQuery("FROM Landing WHERE email=:email");
+		query.setParameter("email", email.toLowerCase());
+		if ((!query.getResultList().isEmpty()))
+			throw new RegistrazioneException("L'email '" + email
+					+ "' e' gia'  stata registrata!");
+
+		Random random = new Random();
+
+		int idLanding;
+		Landing landing = null;
+		Landing landingEsistenteConQuellId = null;
+		do {
+			idLanding = 1 + random.nextInt(1000000);
+			landingEsistenteConQuellId = entityManager.find(Landing.class,
+					idLanding);
+			if (landingEsistenteConQuellId == null) { // se non esiste gia'  un'
+														// utente con quell'id
+				landing = new Landing(idLanding, nome, email.toLowerCase(),
+						nomeAbilita);
+			}
+		} while (landingEsistenteConQuellId != null);
+
+		entityManager.persist(landing);
+		return idLanding;
 	}
 }

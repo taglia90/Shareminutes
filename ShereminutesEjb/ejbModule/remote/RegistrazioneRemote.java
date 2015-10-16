@@ -25,4 +25,7 @@ public interface RegistrazioneRemote {
 	public void modificaPassword(int idUtente, String password,
 			String confermaPassword) throws RegistrazioneException;
 
+	public int salvaDatiLanding(String nome, String email, String nomeAbilita)
+			throws RegistrazioneException;
+
 }

@@ -26,9 +26,9 @@ public interface GestioneUtentiRemote {
 	public List<Utente> getListaAmici(int idUtente);
 
 	public List<Utente> getListaFollowerDiUtente(int idUtente);
-	
+
 	public List<Follower> getListaFollower(int idUtente);
-	
+
 	public List<Follower> getListaFollowerPreferiti(int idUtente);
 
 	public List<Utente> getListaAmiciInSospeso(int idUtente);
@@ -61,9 +61,10 @@ public interface GestioneUtentiRemote {
 			throws AmiciziaException;
 
 	public void setPreferito(int idFollower);
-	
+
 	public void rimuoviPreferito(int idFollower);
-	
+
 	public void eliminaFollower(int idFollower);
-	
+
+	public Long getNumeroDiFollowers(int idUtente);
 }

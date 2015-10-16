@@ -11,6 +11,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
+import org.jacorb.poa.policy.IdUniquenessPolicy;
+
 import entity.Abilita;
 import entity.Prenotazione;
 import entity.Richiesta;
@@ -52,7 +54,7 @@ public @Stateless(name = "GestionePrenotazioni") class GestionePrenotazioni
 				LocalDateTime dataOra = LocalDateTime.now();
 				prenotazione = new Prenotazione(idPrenotazione, data,
 						orarioPrenotato, utenteBuyer, utenteSeller, abilita,
-						false, false, false, false, false, dataOra);
+						false, false, false, false, dataOra, false, false);
 
 			}
 		} while (prenotazioneEsistenteConQuellId != null);
@@ -137,7 +139,8 @@ public @Stateless(name = "GestionePrenotazioni") class GestionePrenotazioni
 		return listaRichiesteInviate;
 	}
 
-	public List<Prenotazione> getListaOrdiniAsABuyerDiUtenteSeller(int idUtenteBuyer, int idUtenteSeller) {
+	public List<Prenotazione> getListaOrdiniAsABuyerDiUtenteSeller(
+			int idUtenteBuyer, int idUtenteSeller) {
 
 		Query query = entityManager
 				.createQuery("FROM Prenotazione WHERE utenteBuyer_idUtente=?1 AND utenteSeller_idUtente=?2");
@@ -149,7 +152,8 @@ public @Stateless(name = "GestionePrenotazioni") class GestionePrenotazioni
 		return listaRichiesteBuyer;
 	}
 
-	public List<Prenotazione> getListaOrdiniAsASellerDiUtenteBuyer(int idUtenteSeller, int idUtenteBuyer) {
+	public List<Prenotazione> getListaOrdiniAsASellerDiUtenteBuyer(
+			int idUtenteSeller, int idUtenteBuyer) {
 
 		Query query = entityManager
 				.createQuery("FROM Prenotazione WHERE utenteSeller_idUtente=?1 AND utenteBuyer_idUtente=?2");
@@ -161,22 +165,27 @@ public @Stateless(name = "GestionePrenotazioni") class GestionePrenotazioni
 
 		return listaRichiesteInviate;
 	}
-	
+
 	public Prenotazione getPrenotazione(int idPrenotazione) {
 
 		return (Prenotazione) entityManager.find(Prenotazione.class,
 				idPrenotazione);
 	}
 
-	public void valutaPrenotazione(int idPrenotazione)
+	public void valutaPrenotazione(int idPrenotazione, int idUtenteMittente)
 			throws PrenotazioneException {
 
 		Prenotazione prenotazione = entityManager.find(Prenotazione.class,
 				idPrenotazione);
-		if (prenotazione.isFeedbackRilasciato())
-			throw new PrenotazioneException("Feedback già' rilasciato");
-
-		prenotazione.setFeedbackRilasciato(true);
+		if (idUtenteMittente == prenotazione.getUtenteBuyer().getIdUtente()) {
+			if (prenotazione.isFeedbackRilasciatoBuyer())
+				throw new PrenotazioneException("Feedback già' rilasciato");
+			prenotazione.setFeedbackRilasciatoBuyer(true);
+		} else {
+			if (prenotazione.isFeedbackRilasciatoSeller())
+				throw new PrenotazioneException("Feedback già' rilasciato");
+			prenotazione.setFeedbackRilasciatoSeller(true);
+		}
 
 		entityManager.merge(prenotazione);
 
@@ -227,7 +236,31 @@ public @Stateless(name = "GestionePrenotazioni") class GestionePrenotazioni
 		// long count = (long) query.getSingleResult();
 		List<Prenotazione> listaPrenotazioni = query.getResultList();
 		for (Prenotazione prenotazione : listaPrenotazioni) {
-			Long numeroVendite = getNumeroVendite(prenotazione.getUtenteBuyer().getIdUtente(), idUtenteSeller);
+			Long numeroVendite = getNumeroVendite(prenotazione.getUtenteBuyer()
+					.getIdUtente(), idUtenteSeller);
+			prenotazione.setNumeroVendite(numeroVendite);
+		}
+
+		return listaPrenotazioni;
+	}
+
+	public List<Prenotazione> getListaClienti(int idUtenteSeller,
+			int idUtenteBuyer) {
+
+		Query query = entityManager
+				.createQuery("FROM Prenotazione WHERE utenteSeller_idUtente=?1 AND utenteBuyer_idUtente=?2 GROUP BY utenteBuyer_idUtente");// SELECT
+		// *,
+		// count(*)
+		// as
+		// numeroVendite
+		query.setParameter(1, idUtenteSeller);
+		query.setParameter(2, idUtenteBuyer);
+
+		// long count = (long) query.getSingleResult();
+		List<Prenotazione> listaPrenotazioni = query.getResultList();
+		for (Prenotazione prenotazione : listaPrenotazioni) {
+			Long numeroVendite = getNumeroVendite(prenotazione.getUtenteBuyer()
+					.getIdUtente(), idUtenteSeller);
 			prenotazione.setNumeroVendite(numeroVendite);
 		}
 
@@ -257,7 +290,30 @@ public @Stateless(name = "GestionePrenotazioni") class GestionePrenotazioni
 		// long count = (long) query.getSingleResult();
 		List<Prenotazione> listaPrenotazioni = query.getResultList();
 		for (Prenotazione prenotazione : listaPrenotazioni) {
-			Long numeroAcquisti = getNumeroAcquisti(prenotazione.getUtenteSeller().getIdUtente(), idUtenteBuyer);
+			Long numeroAcquisti = getNumeroAcquisti(prenotazione
+					.getUtenteSeller().getIdUtente(), idUtenteBuyer);
+			prenotazione.setNumeroAcquisti(numeroAcquisti);
+		}
+
+		return listaPrenotazioni;
+	}
+
+	public List<Prenotazione> getListaFornitori(int idUtenteBuyer,
+			int idUtenteSeller) {
+		Query query = entityManager
+				.createQuery("FROM Prenotazione WHERE utenteBuyer_idUtente=?1 AND utenteSeller_idUtente=?2 GROUP BY utenteSeller_idUtente");// SELECT
+		// *,
+		// count(*)
+		// as
+		// numeroAcquisti
+		query.setParameter(1, idUtenteBuyer);
+		query.setParameter(2, idUtenteSeller);
+
+		// long count = (long) query.getSingleResult();
+		List<Prenotazione> listaPrenotazioni = query.getResultList();
+		for (Prenotazione prenotazione : listaPrenotazioni) {
+			Long numeroAcquisti = getNumeroAcquisti(prenotazione
+					.getUtenteSeller().getIdUtente(), idUtenteBuyer);
 			prenotazione.setNumeroAcquisti(numeroAcquisti);
 		}
 
@@ -274,5 +330,22 @@ public @Stateless(name = "GestionePrenotazioni") class GestionePrenotazioni
 		Long numeroAcquisti = Long
 				.parseLong(query.getSingleResult().toString());
 		return numeroAcquisti;
+	}
+
+	public boolean ciSonoOrdiniNonLettiDiUtente(int idUtente) {
+		Query query = entityManager
+				.createQuery("SELECT COUNT(p) FROM entity.Prenotazione p"
+						+ " WHERE utenteBuyer_idUtente=?1 AND isAccettataSeller=1 AND isConfermataBuyer=0"
+						+ " OR"
+						+ " utenteSeller_idUtente=?1 AND isAccettataSeller=0"
+						+ " OR"
+						+ " utenteSeller_idUtente=?1 AND isConfermataBuyer=1 AND isPagata=1");
+
+		query.setParameter(1, idUtente);
+
+		long numeroMessaggiNonLetti = (long) query.getSingleResult();
+		if (numeroMessaggiNonLetti == 0)
+			return false;
+		return true;
 	}
 }

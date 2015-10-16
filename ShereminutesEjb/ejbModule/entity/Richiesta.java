@@ -27,19 +27,21 @@ public class Richiesta implements Serializable {
 	private Utente utenteDestinatario;
 	private boolean haRicevutoFeedback;
 	private List<Messaggio> listaMessaggi = new ArrayList<Messaggio>();
+	private int lettoDa = 0;
 
 	public Richiesta() {
 		super();
 	}
 
 	public Richiesta(int id, String oggettoRich, Utente utenteMitt,
-			Utente utenteDest) {
+			Utente utenteDest, int lettaDa) {
 		super();
 		setIdRichiesta(id);
 		setOggettoRichiesta(oggettoRich);
 		setUtenteMittente(utenteMitt);
 		setUtenteDestinatario(utenteDest);
 		this.haRicevutoFeedback = false;
+		setLettoDa(lettaDa);
 	}
 
 	@Id
@@ -104,4 +106,12 @@ public class Richiesta implements Serializable {
 		listaMessaggi.add(messaggio);
 	}
 
+	@Column(name = "lettoDa")
+	public int getLettoDa() {
+		return lettoDa;
+	}
+
+	public void setLettoDa(int lettoDa) {
+		this.lettoDa = lettoDa;
+	}
 }
